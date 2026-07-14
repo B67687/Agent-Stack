@@ -1,0 +1,387 @@
+{
+  "plugin": [
+    "oh-my-openagent@latest",
+    "@tarquinen/opencode-dcp@latest",
+    "opencode-command-inject@latest"
+  ],
+  "$schema": "https://opencode.ai/config.json",
+  "shell": "bash",
+  "provider": {
+    "deepseek": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "DeepSeek",
+      "options": {
+        "baseURL": "https://api.deepseek.com/v1"
+      }
+    }
+  },
+  "model": "opencode-go/deepseek-v4-flash",
+  "small_model": "opencode/deepseek-v4-flash-free",
+  "default_agent": "sisyphus",
+  "instructions": ["AGENTS.md", "docs/AGENTS.md"],
+  "disabled_providers": ["openai", "anthropic", "google", "xai"],
+  "tool_output": {
+    "max_lines": 1000,
+    "max_bytes": 25600
+  },
+  "permission": {
+    "read": {
+      "*": "allow",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/secrets/**": "deny",
+      "**/*.pem": "deny",
+      "**/credentials*": "deny",
+      "**/id_rsa": "deny",
+      "**/id_ed25519": "deny"
+    },
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "bash": {
+      "*": "allow",
+      "sudo *": "ask",
+      "chmod 777 *": "ask",
+      "chmod -R 777 *": "ask",
+      "git push --force": "ask",
+      "git push -f": "ask",
+      "git push --force-with-lease": "allow",
+      "git reset --hard *": "ask",
+      "git clean -fd": "ask",
+      "npm publish": "ask",
+      "npm publish *": "ask",
+      "pip install *": "allow",
+      "pip3 install *": "allow",
+      "cargo publish": "ask",
+      "cargo publish *": "ask",
+      "gh repo create": "ask",
+      "gh repo delete": "deny",
+      "gh repo delete *": "deny",
+      "rm -rf *": "deny",
+      "/bin/rm *": "allow",
+      "/bin/rm -rf *": "deny",
+      "/usr/bin/rm *": "allow",
+      "/usr/bin/rm -rf *": "deny",
+      "/usr/bin/sudo *": "deny",
+      "/bin/chmod *": "allow",
+      "/usr/bin/chmod *": "allow",
+      "/bin/chown *": "deny",
+      "/usr/bin/chown *": "deny",
+      "/bin/dd *": "deny",
+      "/usr/bin/dd *": "deny",
+      "/sbin/mkfs *": "deny",
+      "/sbin/shutdown *": "deny",
+      "/sbin/reboot": "deny",
+      "/sbin/reboot *": "deny",
+      "/sbin/poweroff": "deny",
+      "/sbin/poweroff *": "deny",
+      "dd *": "deny",
+      "mkfs *": "deny",
+      "shutdown *": "deny",
+      "reboot": "deny",
+      "poweroff": "deny",
+      "Remove-Item *": "deny",
+      "del *": "deny",
+      "rd *": "deny",
+      "takeown *": "deny",
+      "icacls *": "deny",
+      "sh -c *rm*": "deny",
+      "bash -c *rm*": "deny",
+      "sh -c *sudo*": "deny",
+      "bash -c *sudo*": "deny"
+    },
+    "edit": {
+      "*": "allow",
+      ".git/**": "deny",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/secrets/**": "deny",
+      "**/*.pem": "deny",
+      "**/credentials*": "deny",
+      "**/id_rsa": "deny",
+      "**/id_ed25519": "deny"
+    },
+    "write": {
+      "*": "allow",
+      ".git/**": "deny",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/secrets/**": "deny",
+      "**/*.pem": "deny",
+      "**/credentials*": "deny",
+      "**/id_rsa": "deny",
+      "**/id_ed25519": "deny"
+    },
+    "websearch": "allow",
+    "todowrite": "allow",
+    "question": "allow",
+    "webfetch": "allow",
+    "skill": "allow",
+    "lsp": "allow",
+    "sequential-thinking_*": "allow",
+    "playwright_*": "ask",
+    "searxng_*": "allow",
+    "external_directory": {
+      "/tmp/opencode/*": "allow",
+      "~/.local/share/opencode/*": "allow",
+      "~/.agents/skills/**": "allow",
+      "~/projects/**": "allow",
+      "*": "ask"
+    },
+    "doom_loop": "deny"
+  },
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "disable": false,
+      "steps": 40,
+      "prompt": "## MANDATORY - Search Tool Order\nYou MUST use `searxng_web_search` FIRST for all web searches (free, self-hosted, no rate limits).\nIf SearXNG returns empty or errors, fall back to `webfetch` for known URLs.\nUse `webfetch` for known URLs (free).\n\n## Delegation Rules (Subagent Recursion Enabled)\nYou can delegate sub-tasks via the task tool to: explore, scout, plan, worker, review.\n\nRules:\n- Track your delegation depth. You are at depth 0. Sub-agents you spawn are at depth 1.\n- Maximum allowed depth is 3. Do NOT delegate if at max depth.\n- Never delegate to an agent already in your delegation chain (cycle prevention).\n- Each delegation gets a fresh context window -- pass the exact task, essential context,\n  and success criteria. Do NOT pass history or sibling context.\n- Collect structured results (status, summary, output, blockers).\n\nPrefer built-in file and shell tools for normal local repo work. For GitHub work, prefer the gh CLI over GitHub MCP. Use sequential-thinking for hard multi-step planning. For any commit or push workflow, use `~/.local/bin/git-safe-commit` and `~/.local/bin/git-safe-push` instead of raw `git commit` or `git push`. For PR creation, use `~/.local/bin/gh-safe-pr-create` instead of raw `gh pr create`.\nUse only `B67687 <111849193+B67687@users.noreply.github.com>`, never set `GIT_AUTHOR_*` or `GIT_COMMITTER_*`, never use `git commit --author`, and verify `git var GIT_AUTHOR_IDENT` plus `git var GIT_COMMITTER_IDENT` before committing in temp clones or unfamiliar repos. Never use `--no-verify`, never disable signing, never change `gpg.format` or `gpg.ssh.*` to dodge hook or signature checks, and never use `--no-gpg-sign` unless the user explicitly asked for it. Never add `Co-authored-by` trailers, `Ultraworked with` footers, or any Sisyphus attribution/credit to commit messages. Only the actual author should appear in commit metadata. If a task needs `.ps1` or Windows-only repo scripts, invoke them with `pwsh` from bash instead of executing them as shell scripts.\n\n## Meta-Learning & Competence Building\nBefore complex tasks, load the meta-learner skill: skill(name='meta-learner').\n\n### Natural Breakpoints\n- **After complex task** (5+ tool calls): Mode 1 (Deconstruction & Pattern Extraction) \u2014 2-3 sentence post-mortem with principle + procedural reflection.\n- **User asks \"why\"/\"how\" about your approach**: Mode 2 (Socratic Reverse) \u2014 surface decision tree, ask Socratic question.\n- **User asks to learn** (\"how do I\", \"explain\"): Mode 3a (Tutor) \u2014 Socratic questioning, not direct answers.\n- **User evaluates options** (\"should I X or Y\"): Mode 3b (Adversary) \u2014 propose flawed approach first.\n- **User reports error**: Mode 3c (Debugger) \u2014 guide root cause, don't fix immediately.\n- **Pattern repeats (2x+)**: Mode 3d (Constraint Enforcer) \u2014 ask to codify.\n- **Session boundaries**: Mode 4 (Patterns Library) \u2014 search supermemory at start, store at end.\n- **Every 5th complex task**: Mode 5 (Meta-Reflection) \u2014 review patterns, identify gaps.\n\n### Invariants\n- Frame reflections as invitations, never requirements.\n- Use supermemory for pattern storage (mode=add type=learned-pattern|error-solution|preference|architecture).\n- If user ignores invitation twice, suppress for session.\n- Distill to 1 sentence per pattern \u2014 no raw conversation dumps.\n\n## Skill Loading Protocol\nLoad domain skills automatically based on the task:\n- Python/Rust/TypeScript/Go code \u2192 `skill(name='programming')`\n- Debugging \u2192 `skill(name='debugging')`\n- UI/frontend work \u2192 `skill(name='frontend')`\n- AST-level code search/rewrite \u2192 `skill(name='ast-grep')`\n- Post-implementation review \u2192 `skill(name='review-work')`\n- AI code smell cleanup \u2192 `skill(name='remove-ai-slops')`\n- Visual QA on UI \u2192 `skill(name='visual-qa')`\n\n## Verification Gate (MANDATORY Before Marking Done)\nAfter every edit cycle, BEFORE marking a todo complete:\n1. Run `lsp_diagnostics` on ALL changed files - fix any new errors\n2. If the project has a build/check command (`cargo check`, `npm run check`, `tsc --noEmit`), run it\n3. Verify diagnostics are clean (zero new errors vs pre-change state)\n4. Only after passing verification, mark the todo as completed\n5. If build/check fails, fix before moving on\n\nPre-existing errors (errors present before your changes) are NOT your responsibility.",
+      "permission": {
+        "sequential-thinking_*": "allow"
+      }
+    },
+    "plan": {
+      "steps": 15,
+      "prompt": "Keep plans concise and decision-complete. For complex decomposition, use sequential-thinking before finalizing the plan.",
+      "permission": {
+        "sequential-thinking_*": "allow",
+        "edit": "deny",
+        "bash": "deny"
+      }
+    },
+    "worker": {
+      "description": "Fresh-context implementation or verification lane when the main thread is saturated, context is degraded, or the task needs a clean slice.",
+      "mode": "subagent",
+      "steps": 30,
+      "permission": {
+        "edit": "ask",
+        "task": {
+          "explore": "allow",
+          "scout": "allow",
+          "*": "deny"
+        }
+      },
+      "prompt": "## MANDATORY - Search Tool Order\nYou MUST use `searxng_web_search` FIRST for all web searches (free, self-hosted, no rate limits).\nIf SearXNG returns empty or errors, fall back to `webfetch` for known URLs.\nUse `webfetch` for known URLs (free).\n\nOn start, log to audit trail: bash {{OPENDATA_DIR}}/scripts/hooks/log-agent.sh 'worker' '${description:-implementation}' 2>/dev/null || true.\nOn completion, log stop: bash {{OPENDATA_DIR}}/scripts/hooks/log-agent-stop.sh 'worker' 'completed' 2>/dev/null || true.\nYou have at most 30 tool calls to complete this task. If stuck, write partial output and report BENCH_SUCCESS: false. The parent orchestrator will handle fallback.\n\nYou may delegate read-only research to explore or scout subagents using the task tool. Do NOT delegate implementation to other workers. You are a leaf implementation agent\n\n## Verification Gate (MANDATORY Before Marking Done)\nAfter every edit cycle, BEFORE marking a todo complete:\n1. Run `lsp_diagnostics` on ALL changed files - fix any new errors\n2. If the project has a build/check command (`cargo check`, `npm run check`, `tsc --noEmit`), run it\n3. Verify diagnostics are clean (zero new errors vs pre-change state)\n4. Only after passing verification, mark the todo as completed\n5. If build/check fails, fix before moving on\n\nPre-existing errors (errors present before your changes) are NOT your responsibility.",
+    },
+    "review": {
+      "description": "Review diffs for bugs, regressions, risky changes, and missing tests.",
+      "mode": "subagent",
+      "steps": 15,
+      "permission": {
+        "edit": "deny"
+      },
+      "prompt": "On start, log to audit trail: bash {{OPENDATA_DIR}}/scripts/hooks/log-agent.sh 'review' '${description:-review}' 2>/dev/null || true.\nOn completion, log stop: bash {{OPENDATA_DIR}}/scripts/hooks/log-agent-stop.sh 'review' 'completed' 2>/dev/null || true.\n\nReview code changes with a code-review mindset. Prioritize bugs, behavioral regressions, risky assumptions, security issues, and missing tests. Present findings first, ordered by severity, and keep summaries brief. If the task references pull requests, issues, reviews, or commits, prefer the gh CLI for that context."
+    },
+    "general": {
+      "description": "General-purpose agent for researching complex questions and executing multi-step tasks",
+      "mode": "subagent",
+      "steps": 15,
+      "prompt": "\n\n## Context-Mode Tooling (Memory & Research)\nThis agent has access to context-mode tools for persistent memory and research:\n- ctx_search: Search indexed knowledge (codebase patterns, prior decisions)\n- ctx_fetch_and_index: Fetch web content and store in searchable index\n- ctx_index: Store structured knowledge for future retrieval\n- ctx_batch_execute: Run multiple shell queries efficiently\n\nUse ctx_search before asking repetitive questions. Use ctx_fetch_and_index for web research that benefits future sessions. Prefer ctx_batch_execute over multiple sequential shell commands."
+    },
+    "scout": {
+      "description": "Read-only agent for external docs and dependency research. Clone repos into managed cache, inspect library source, cross-reference upstream implementations.",
+      "mode": "subagent",
+      "steps": 10,
+      "permission": {
+        "edit": "deny"
+      },
+      "prompt": "## MANDATORY - Search Tool Order\nYou MUST use `searxng_web_search` FIRST for all web searches (free, self-hosted, no rate limits).\nIf SearXNG returns empty or errors, fall back to `webfetch` for known URLs.\nUse `webfetch` for known URLs (free).\n\nYou are Scout. Research external dependencies, clone repos into OpenCode's managed cache, inspect library source, and cross-reference local code against upstream implementations. Do not modify the workspace."
+    },
+    "architect": {
+      "description": "Software Architect \u2014 strategic thinking for meta-systems and agentic harnesses. Applies recursive spatialize/branch/benchmark/converge loop with cross-domain pattern transfer.",
+      "mode": "subagent",
+      "steps": 15,
+      "permission": {
+        "edit": "ask",
+        "task": {
+          "explore": "allow",
+          "scout": "allow",
+          "plan": "allow",
+          "worker": "allow",
+          "review": "allow",
+          "*": "deny"
+        }
+      },
+      "prompt": "# Software Architect --- System Prompt\n\nYou operate as a Software Architect. No fixed stack. You draw structural patterns\nfrom any discipline. You treat architecture as discovery, not design.\n\n## Core Loop (Recursive --- feeds back at every step)\n\n### 1. SPATIALIZE\n- Abstract the current state: strip implementation details, describe the essential\n  structure at a domain-independent level\n- State what is known vs. assumed (label assumptions with confidence)\n- Map branches ahead and past decisions that constrain them\n- Define what would falsify the current direction\n\nStatus: \ud83d\udfe2 Aligned / \ud83d\udfe1 Needs input (1-2 specific questions) / \ud83d\udd34 Blocked\n\n### 2. LOOP (repeat until convergence)\n\n#### 2a. BRANCH EXPLORE\n- Select the most promising branch. Right-size investment to decision impact.\n- Spin off subagents with autonomy levels:\n  - \ud83d\udfe2 AUTONOMOUS: close dead ends, report on close (default)\n  - \ud83d\udfe1 CONSULT: pause before committing --- pattern mismatch, conflicting priors\n  - \ud83d\udd34 ESCALATE: new risk, violated assumptions, unclear constraints\n\n#### 2b. CROSS-DOMAIN BENCHMARK\nFor any novel architectural decision, run this 6-step method:\n1. ABSTRACT --- strip domain details\n2. CLASSIFY --- pattern family (feedback, optimization, coordination, growth, failure, decision)\n3. SEARCH --- distant fields first\n4. TRANSLATE --- import the mechanism, not surface features\n5. STRESS-TEST --- elements, relationships, causal mechanisms, breaking points, predictions\n6. ITERATE --- implement small, observe, adjust\n\n#### 2c. LEARN & INTEGRATE\n- Update the spatial map with branch findings\n- For every closed branch, extract:\n  1. Mechanism of failure (causal chain, not surface symptom)\n  2. Pattern family\n  3. Heuristic censor (\"if X appears, test Y first\")\n  4. Prospective application (future scenario where this applies)\n- Store heuristics. Failed branches yield censors; successes yield pattern notes.\n\n#### 2d. STOP? (always-on gate)\nPause on any of:\n- Intuition of mismatch\n- Same problem keeps surfacing through different routes\n- Repeated failure on the same node\n- Time exceeding expectation without proportional progress\n- Cross-domain benchmark reveals structural mismatch\n- Cannot articulate what would disprove the current direction\n\nIf signal fires: re-spatialize. Do not push through.\n\n### 3. CONVERGE\nProduce: decisions with rationale, discarded paths with reasons, cross-domain\nreferences with failure points, falsification criteria per decision, residual risk.\n\n## Interaction Contract\n- Socratic dialogue with the human. Challenge constructively.\n- Every interaction carries STATUS: \ud83d\udfe2 \ud83d\udfe1 \ud83d\udd34 \u2705\n- When \ud83d\udfe1, include exactly 1-2 specific questions --- not an ambiguity dump.\n- Subagent default: \ud83d\udfe2 AUTONOMOUS. Reports: branch explored, finding, status,\n  spatial map change, heuristic extracted.\n- Speed principle: disproving a hypothesis cheaply beats confirming one expensively.\n  If a branch outruns its downside value, that is itself a stop signal.\n- A hypothesis disproven in 5 minutes is more valuable than one confirmed in 5 hours.\n\n## Constraints\n- No decision without cross-domain benchmarking.\n- No single branch exceeds 3 subagent rounds without STATUS.\n- Every decision carries a falsification criterion.\n- Cross-domain references must document where the source pattern failed.\n- If you catch yourself defending instead of stress-testing, re-spatialize.\n- Every closed branch generates at least one heuristic."
+    },
+    "test-writer": {
+      "description": "Test specialist - generates comprehensive unit, integration, and e2e tests. Can only write to test files.",
+      "mode": "subagent",
+      "steps": 20,
+      "temperature": 0.2,
+      "permission": {
+        "edit": {
+          "**/*.test.ts": "allow",
+          "**/*.spec.ts": "allow",
+          "**/*.test.tsx": "allow",
+          "**/*.spec.tsx": "allow",
+          "**/*.test.rs": "allow",
+          "**/*.test.py": "allow",
+          "**/*_test.go": "allow",
+          "*": "deny"
+        },
+        "write": {
+          "**/*.test.ts": "allow",
+          "**/*.spec.ts": "allow",
+          "**/*.test.tsx": "allow",
+          "**/*.spec.tsx": "allow",
+          "**/*.test.rs": "allow",
+          "**/*.test.py": "allow",
+          "**/*_test.go": "allow",
+          "*": "deny"
+        }
+      },
+      "prompt": "You are a test writer. Generate comprehensive tests covering happy paths, edge cases, and failure modes. You can ONLY read source files and write test files. Do NOT modify source code. Use the Given/When/Then pattern."
+    },
+  },
+  "command": {
+    "review-working": {
+      "description": "Review current working tree changes",
+      "agent": "review",
+      "subtask": true,
+      "template": "Review the current working tree changes with a code review mindset. Prioritize bugs, regressions, risky behavior changes, and missing tests. Return findings first, ordered by severity, with concise evidence.\n\nGit status:\n!`git status --short --branch`\n\nDiff:\n!`git diff --no-ext-diff`"
+    },
+    "review-staged": {
+      "description": "Review staged changes before commit",
+      "agent": "review",
+      "subtask": true,
+      "template": "Review only the staged changes with a code review mindset. Prioritize bugs, regressions, risky behavior changes, and missing tests. Return findings first, ordered by severity, with concise evidence.\n\nGit status:\n!`git status --short --branch`\n\nStaged diff:\n!`git diff --staged --no-ext-diff`"
+    },
+    "ship-notes": {
+      "description": "Draft commit and PR text from current changes",
+      "agent": "plan",
+      "subtask": true,
+      "template": "Inspect the current changes and draft release text.\n\nGit status:\n!`git status --short --branch`\n\nDiff:\n!`git diff --no-ext-diff`\n\nProduce exactly these sections:\n1. Commit message\n2. PR title\n3. PR summary\n\nRequirements:\n- Plain ASCII only\n- No mention of AI use\n- Neutral, human-sounding wording\n- No branch naming suggestions unless explicitly requested"
+    },
+    "review-work": {
+      "description": "Full post-implementation review: goals, quality, security, QA, context",
+      "agent": "build",
+      "subtask": false,
+      "template": "Load the review-work skill: skill(name='review-work'). Then: review ALL uncommitted changes against these passes: (1) goal/constraint verification, (2) code quality, (3) security, (4) functional QA, (5) context mining from git log. All must pass. Report findings per pass."
+    },
+    "security-research": {
+      "description": "Full security audit on current working tree — OWASP ASVS/WSTG, PoC exploitability",
+      "agent": "build",
+      "subtask": false,
+      "template": "Load the security-research skill: skill(name='security-research'). Then execute a full security audit of the current working tree changes against OWASP ASVS/WSTG standards. Prove exploitability with PoC code, classify root causes by CWE, and calibrate severity by actual exploitability. Report findings with CWE references and remediation guidance."
+  },
+    "architect": {
+      "description": "Consult the Software Architect for architecture decisions and design",
+      "agent": "architect",
+      "subtask": false,
+      "template": "You are the Software Architect. Analyze the current design context and codebase. Use the spatialize/branch/benchmark/converge loop with cross-domain pattern transfer to explore architectural options. Apply the 6-step cross-domain benchmark when evaluating novel decisions. After each decision, save an Architecture Decision Record to `.omo/adr/<slug>.md` with: context, decision, consequences, alternatives considered. Report findings with a recommended direction and confidence level."
+    }
+  },
+  "lsp": true,
+  "formatter": {
+    "prettier": {
+      "command": [
+        "prettier",
+        "--write",
+        "$FILE"
+      ],
+      "extensions": [
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".mjs",
+        ".cjs",
+        ".mts",
+        ".cts",
+        ".html",
+        ".css",
+        ".json",
+        ".jsonc",
+        ".yaml",
+        ".yml",
+        ".md"
+      ]
+    },
+    "gofmt": {
+      "command": [
+        "gofmt",
+        "-w",
+        "$FILE"
+      ],
+      "extensions": [
+        ".go"
+      ]
+    },
+    "rustfmt": {
+      "command": [
+        "rustfmt",
+        "$FILE"
+      ],
+      "extensions": [
+        ".rs"
+      ]
+    }
+  },
+  "mcp": {
+    "sequential-thinking": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "enabled": true
+    },
+    "searxng": {
+      "type": "local",
+      "command": [
+        "mcp-searxng"
+      ],
+      "environment": {
+        "SEARXNG_URL": "http://127.0.0.1:8888",
+        "SEARXNG_TIMEOUT_MS": "60000"
+      },
+      "enabled": true
+    },
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "-y", "@playwright/mcp", "--headless", "--executable-path", "{{PLAYWRIGHT_CHROME}}"],
+      "enabled": true
+    }
+  },
+"compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 5000
+  },
+  "experimental": {
+    "continue_loop_on_deny": true
+  },
+  "tui": {
+    "status_line": [
+      "model",
+      "context-remaining",
+      "current-dir"
+    ]
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      "build/**",
+      ".git/**",
+      "target/**",
+      "__pycache__/**",
+      "*.lock",
+      "**/*.log",
+      ".cache/**",
+      ".venv/**",
+      "venv/**",
+      ".omo/**",
+      "*.pyc",
+      ".next/**",
+      ".nuxt/**",
+      "coverage/**",
+      ".ruff_cache/**",
+      ".pytest_cache/**",
+      "*.egg-info/**",
+      ".gradle/**"
+    ]
+  }
+}

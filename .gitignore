@@ -1,0 +1,49 @@
+# ==========================================================
+# Standard .gitignore for opencode-config
+# Explicit ignore list — only patterns listed here are excluded
+# ==========================================================
+
+# Agent workspace ephemera — never committed
+.omo/
+
+# .opencode/rules/ are configuration artifacts — keep them
+# Everything else under .opencode/ is session ephemera
+.opencode/*
+!.opencode/rules/
+!.opencode/rules/**
+
+# OS detritus
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.iml
+*.sublime-*
+
+# Temp / backup / generated
+*.bak
+*.tmp
+*.log
+out/
+dist/
+build/
+
+# Node / package artifacts
+node_modules/
+.pnp/
+.pnp.js
+
+# Environment / secrets
+.env
+.env.*
+secrets/

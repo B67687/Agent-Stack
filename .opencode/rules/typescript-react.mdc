@@ -1,0 +1,39 @@
+---
+description: TypeScript/React coding standards — strict TS, Biome, functional components, Zod, named exports
+globs: "**/*.{ts,tsx}"
+---
+
+# TypeScript & React Workflow Rules
+
+## TypeScript Strictness
+
+1. **Strict TypeScript mode only.** Enable `strict: true` in `tsconfig.json`. No `any` type — use `unknown` and narrow with type guards. No `// @ts-ignore` or `// @ts-expect-error` without a linked issue/ticket comment explaining why.
+2. **No implicit `any`.** Set `noImplicitAny: true`, `strictNullChecks: true`, `noUncheckedIndexedAccess: true` in tsconfig.
+3. **Use branded types** for IDs and primitives that cross domain boundaries (`type UserId = string & { __brand: "UserId" }`).
+
+## Toolchain
+
+4. **Use `Biome` for both linting and formatting.** No ESLint, no Prettier. Run `biome check --write` before commit. Configure in `biome.json`.
+5. **Use `tsc` for type checking** (`tsc --noEmit`). Biome handles lint; tsc handles types.
+
+## React
+
+6. **Functional components with hooks only.** No class components. Use `useState`, `useEffect`, `useCallback`, `useMemo` as appropriate.
+7. **Use React 18+ patterns.** Prefer `useSyncExternalStore` over manual subscription cleanup. Use `startTransition` for non-urgent state updates.
+8. **Keep components small** — one file per component, max ~200 lines. Extract hooks into `use*` files, utilities into `*.utils.ts`.
+
+## Runtime Validation
+
+9. **Use `Zod` for all runtime validation.** Parse API responses, form inputs, and configs at the boundary with `.parse()` (throws) or `.safeParse()` (returns result type).
+10. **Derive TypeScript types from Zod schemas** with `z.infer<typeof mySchema>` — never duplicate type definitions.
+
+## Module Style
+
+11. **Prefer `interface` over `type` for public APIs** — interfaces are extendable, produce better error messages, and merge. Use `type` for unions, intersections, and utility types.
+12. **Named exports only.** No `export default`. This enables consistent imports, better tree-shaking, and easier refactoring.
+13. **Barrel files (`index.ts`) OK** for re-exporting from a directory — but keep them flat, no deep re-export chains.
+
+## Testing
+
+14. **Use `vitest` for unit tests.** Test files co-located with source as `*.test.ts`/`*.test.tsx`.
+15. **Write tests for every custom hook** — test state transitions, not just initial render.

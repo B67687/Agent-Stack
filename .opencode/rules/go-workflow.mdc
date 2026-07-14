@@ -1,0 +1,71 @@
+---
+description: Go coding standards — gofumpt, slog, sqlc+pgx, no init, errcheck, table-driven tests
+globs: "**/*.go"
+---
+
+# Go Workflow Rules
+
+## Toolchain
+
+1. **Use `gofumpt` for formatting** — a stricter fork of `gofmt`. Run `gofumpt -l -w .` before every commit. Configure in editor to format on save.
+2. **Use `golangci-lint` with active monitoring** — enable linters: `errcheck`, `staticcheck`, `gosec`, `nilaway`, `gocritic`. Configure in `.golangci.yml`.
+
+## Logging
+
+3. **Use `log/slog` for all structured logging** — the standard library's `slog` package. No `logrus`, no `zap`, no `fmt.Println` for diagnostic output.
+4. **Use structured attributes, not formatted strings:**
+   ```go
+   slog.Info("request completed", "path", r.URL.Path, "status", statusCode, "duration_ms", dur.Milliseconds())
+   ```
+   Never `slog.Info(fmt.Sprintf("request %s completed with %d", path, code))`.
+
+## Database
+
+5. **Use `sqlc` for type-safe SQL query generation** — write `.sql` query files, generate Go code with `sqlc generate`. No raw SQL strings in Go source.
+6. **Use `pgx` as the PostgreSQL driver** (via `pgx/v5`). Use `pgxpool` for connection pooling. No `database/sql` with `lib/pq`.
+
+## Initialization
+
+7. **No `init()` functions** — they make initialization order implicit and untestable. Use explicit constructors (e.g. `func NewService(ctx context.Context, db *pgxpool.Pool) *Service`).
+8. **Use `sync.Once` for lazy singleton initialization** when a single-instance pattern is genuinely needed.
+
+## Error Handling
+
+9. **`errcheck` on all `defer` statements** — the linter must flag unchecked deferred errors:
+   ```go
+   defer func() { _ = f.Close() }()          // BAD — suppresses error
+   defer func() { if err := f.Close(); err != nil { slog.Warn("close failed", "err", err) } }()  // GOOD
+   ```
+10. **Wrap errors with context:** use `fmt.Errorf("...: %w", err)` to annotate. Never use `errors.Wrap` (that's `github.com/pkg/errors` — deprecated).
+11. **Prefer sentinel errors over error types** — `var ErrNotFound = errors.New("not found")`. Use error types only when callers need to access fields.
+
+## Testing
+
+12. **Table-driven tests with `t.Run` subtests:**
+    ```go
+    func TestCalculate(t *testing.T) {
+        tests := []struct {
+            name string
+            input int
+            want  int
+        }{
+            {"zero", 0, 0},
+            {"positive", 5, 25},
+        }
+        for _, tt := range tests {
+            t.Run(tt.name, func(t *testing.T) {
+                got := Calculate(tt.input)
+                if got != tt.want {
+                    t.Errorf("Calculate(%d) = %d, want %d", tt.input, got, tt.want)
+                }
+            })
+        }
+    }
+    ```
+13. **Use `net/http/httptest` for HTTP handler tests.** Never spin up a real server for unit tests.
+14. **Race detection enabled** — `go test -race ./...` must pass.
+
+## Structure
+
+15. **250 LOC ceiling per file** (same as Rust/Python). Extract helpers into `_internal/` or `_util/` packages.
+16. **Use `internal/` packages** to enforce encapsulation boundaries within a module.

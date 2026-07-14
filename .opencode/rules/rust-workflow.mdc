@@ -1,0 +1,47 @@
+---
+description: Rust coding standards — cargo check, unsafe discipline, error types, serde, iterator style, module size limits
+globs: "**/*.rs"
+---
+
+# Rust Workflow Rules
+
+## Build & Test Discipline
+
+1. **Always run `cargo check` before `cargo test`** — catch type errors before invoking the test runner. Never skip straight to `cargo test`.
+2. **`cargo clippy` must pass clean** before any commit. Use `#[allow(...)]` only with a documented reason.
+
+## Safety & Unsafe
+
+3. **No `unsafe` block without a `// SAFETY:` comment** directly above it. The comment must explain the invariant that justifies the safety — not just "safe because trivially correct".
+4. **Minimize unsafe surface area.** Wrap unsafe blocks in safe abstractions behind a minimal API. Prefer `core::cell::UnsafeCell` patterns to raw pointer arithmetic where possible.
+
+## Error Handling
+
+5. **Use `thiserror` for all enum-based error types.** Derive `std::error::Error` and implement `Display` via the `#[error("...")]` attribute. No manual `impl Display for Error` boilerplate.
+6. **Use `anyhow::Result` for application-level error propagation** (binaries, integration boundaries). Library crates expose `thiserror` error types directly, not `anyhow`.
+
+## Serialization
+
+7. **Use `serde` for all serialization/deserialization.** Derive `Serialize`/`Deserialize` on all data types that cross a boundary (file, network, config). Use `#[serde(rename_all = "snake_case")]` for JSON/YAML, `#[serde(rename_all = "PascalCase")]` for XML-adjacent formats.
+8. **Lossy roundtrip test pattern:** for every `#[derive(Serialize, Deserialize)]` type, include a test that serializes and deserializes back, asserting structural equivalence (not byte-equality, since field ordering may differ):
+   ```rust
+   #[test]
+   fn test_roundtrip() {
+       let original = MyType { ... };
+       let json = serde_json::to_string(&original).unwrap();
+       let deserialized: MyType = serde_json::from_str(&json).unwrap();
+       assert_eq!(original.field, deserialized.field);
+   }
+   ```
+
+## Style & Structure
+
+9. **Prefer iterator combinators over explicit loops** — use `.map()`, `.filter()`, `.fold()`, `.collect()` chains instead of `for` loops with mutable accumulators. The one exception: early returns inside a loop that are clearer with `for`.
+10. **250 LOC ceiling per module.** If a `.rs` file exceeds 250 lines of non-test, non-doc code, extract into submodules. Test modules (`#[cfg(test)] mod tests`) are exempt from the count.
+11. **Use `cargo fmt` before every check** — let `rustfmt` handle formatting, never debate it.
+
+## Testing
+
+12. **Every public function must have at least one doc-test or unit test.** Private helpers need tests proportional to complexity.
+13. **Use `#[cfg(test)] mod tests { use super::*; }` at the bottom of each module.**
+14. **Test error paths explicitly** — not just happy path. Use `assert!(result.is_err())` or `assert_matches!(result, Err(...))`.
