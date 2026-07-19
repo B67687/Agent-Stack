@@ -1,0 +1,56 @@
+---
+description: Agent operation protocols — verification gates, search ordering, delegation depth, project context, ADR discipline
+globs: "**/*"
+---
+
+# Agent Behavior Rules
+
+## Verification Discipline
+
+1. **Verify after every edit** — run `lsp_diagnostics` on any changed file immediately after a write/edit. Fix any errors before proceeding to the next step.
+2. **Pre-commit gate** — before marking any task as `completed`, ensure zero new diagnostics errors. Unresolved warnings must have a documented reason.
+3. **After any `edit` operation that produces a `>>> mismatch` error**, re-read the file to get fresh LINE#IDs and retry. Never infer line numbers from stale state.
+
+## Search Ordering
+
+4. **Search tool priority:**
+   - **1st:** `searxng_web_search` (SearXNG instance — privacy-respecting, federated)
+   - **2nd:** `websearch_tavily_search` (Tavily — fallback when SearXNG is unavailable or returns empty)
+   - **3rd:** `context7_query_docs` (for framework/library API lookups only — not for general web search)
+   
+   Do not call multiple search engines in parallel for the same query — cascade sequentially.
+
+## Delegation Rules
+
+5. **Maximum delegation depth: 3** (orchestrator → sub-agent → sub-sub-agent). Beyond 3, fold work back into the orchestrator.
+6. **Use `call_omo_agent` with `run_in_background: true`** for exploration tasks. Collect results via `background_output` after the system notification. Do NOT re-do the search work yourself after delegating (Anti-Duplication Rule).
+7. **One logical task per sub-agent** — don't ask a single agent to do two unrelated explorations. Split into parallel agents.
+
+## Project Context
+
+8. **Read `.omo/project-context.md` at the start** of any session on a known project. This provides project memory, past decisions, and ADR references.
+9. **Write `.omo/project-context.md` at the end** — update significant decisions, new patterns discovered, and unresolved issues so future sessions have context. Use `ctx_index` for knowledge base storage.
+10. **Use `ctx_batch_execute` for large grep/read operations** — this routes output through the context manager and reduces token waste.
+
+## Architecture Decisions
+
+11. **Create an ADR (Architecture Decision Record)** for any decision that is significant, has trade-offs, or would be costly to reverse. Store in the project's `ADR/` directory. Use the format: `ADR-{NNNN}-{title-with-dashes}.md`.
+12. **Minimal ADR template:**
+    ```markdown
+    # ADR-NNNN: Title
+    - **Date:** YYYY-MM-DD
+    - **Status:** [Proposed | Accepted | Deprecated | Superseded]
+    - **Context:** What prompted this decision.
+    - **Decision:** What we decided and why.
+    - **Consequences:** What becomes easier/harder.
+    ```
+
+## Complex Problem Solving
+
+13. **Prefer `sequential-thinking` for complex multi-step problems** — break reasoning into numbered steps, revise when new information arrives, and verify the hypothesis before acting.
+14. **For debugging: use the protocol from `shared/debugging` skill** — form ≥3 hypotheses, investigate in parallel, after 2 failed rounds spawn orthogonal perspectives, confirm root cause with a failing test, fix minimally, QA by actually using the system.
+
+## Context Management
+
+15. **Use `compress` pro-actively** when conversation grows long. Compress explored-but-decided segments into summaries. Keep active reasoning and unsolved items in full fidelity.
+16. **When resuming from a compact/clear:** run `ctx_search(sort: "timeline")` first to restore context, then read the active plan or project context.

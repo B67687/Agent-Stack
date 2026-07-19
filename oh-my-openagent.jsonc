@@ -1,0 +1,293 @@
+{
+  "team_mode": {
+    "enabled": true,
+  },
+  "disabled_hooks": [
+    "goal",
+    "todo-continuation-enforcer"
+  ],
+  "default_mode": {
+    "ultrawork": false,
+    "goal": false,
+  },
+  "agent_order": ["hephaestus", "sisyphus", "prometheus", "atlas"],
+  "goal": {
+    "enabled": false,
+    "auto_start": false,
+    "default_max_iterations": 20,
+  },
+  "git_master": {
+    "commit_footer": false,
+    "include_co_authored_by": false,
+    "git_env_prefix": "GIT_MASTER=1",
+  },
+  "hashline_edit": true,
+  "comment_checker": {},
+  "experimental": {
+    "disable_omo_env": true,
+    "task_system": true,
+    "preemptive_compaction": true,
+    "truncate_all_tool_outputs": false,
+    "safe_hook_creation": true,
+  },
+  "websearch": {
+    "provider": "tavily",
+  },
+  "auto_update": false,
+  "telemetry": false,
+  "model_fallback": true,
+  "keyword_detector": {
+    "enabled_expansions": ["ultrawork"],
+  },
+  "disabled_agents": [],
+  "background_task": {
+    "concurrency": 15,
+    "maxToolCalls": 1000,
+    "staleTimeoutMs": 300000,
+    "providerConcurrency": {
+      "deepseek": 3,
+      "opencode-go": 10,
+    },
+    "modelConcurrency": {
+      "opencode-go/deepseek-v4-flash": 10,
+      "opencode/deepseek-v4-flash-free": 5,
+      "opencode/mimo-v2.5-free": 10,
+      "opencode-go/mimo-v2.5": 5,
+      "opencode-go/minimax-m3": 3,
+      "opencode-go/qwen3.7-plus": 5,
+      "opencode-go/deepseek-v4-pro": 3,
+      "opencode-go/mimo-v2.5-pro": 5,
+      "opencode-go/qwen3.6-plus": 5,
+      "opencode-go/minimax-m2.7": 5,
+    },
+  },
+  "tui": {
+    "sidebar": {
+      "enabled": true,
+    },
+  },
+  "notification": {
+    "force_enable": true,
+  },
+  "dynamic_context_pruning": {
+    "enabled": true,
+    "notification": "detailed",
+    "turn_protection": {
+      "enabled": true,
+      "turns": 5,
+    },
+    "protected_tools": [
+      "task",
+      "todowrite",
+      "todoread",
+      "lsp_rename",
+      "session_read",
+      "session_write",
+      "session_search",
+    ],
+  },
+  "babysitting": {
+    "timeout_ms": 180000,
+  },
+  "runtime_fallback": {
+    "skip_task_agent_fallback": true,
+    "skip_inherit_agent": false,
+    "enable_fallback_json_mode": true,
+    "fallback_on_freeze": true,
+    "freeze_timeout": 120000,
+    "retry_on_errors": [400, 429, 503, 529],
+    "max_fallback_attempts": 3,
+    "notify_on_fallback": true,
+  },
+  "sisyphus_agent": {
+    "subagent_mapping": {
+      "explore": "opencode/mimo-v2.5-free",
+      "quick": "opencode/mimo-v2.5-free",
+      "unspecified-low": "opencode/mimo-v2.5-free",
+      "writing": "opencode/deepseek-v4-flash-free",
+      "sisyphus-junior": "opencode/deepseek-v4-flash-free",
+    },
+  },
+  "categories": {
+    "visual-engineering": {
+      "description": "UI, frontend, styling, design, animations, responsive layout",
+      "prompt_append": "Prioritize visual accuracy, responsive layout, and design consistency. Use the frontend skill for UI work.",
+      "model": "opencode-go/minimax-m3",
+      "fallback_models": [
+        {
+          "model": "opencode/deepseek-v4-flash-free",
+        },
+      ],
+      "reasoningEffort": "max",
+    },
+    "ultrabrain": {
+      "description": "Hard logic, architecture decisions, complex algorithms, deep analysis",
+      "model": "opencode-go/deepseek-v4-pro",
+      "fallback_models": [
+        {
+          "model": "opencode/deepseek-v4-flash-free",
+        },
+      ],
+      "reasoningEffort": "max",
+    },
+    "deep": {
+      "description": "Autonomous research, root cause analysis, unfamiliar code investigation",
+      "prompt_append": "Fire multiple background explore/librarian agents in parallel. Gather all leads before converging. Report conflicting findings.",
+      "model": "opencode-go/deepseek-v4-flash",
+      "fallback_models": [
+        {
+          "model": "opencode/deepseek-v4-flash-free",
+        },
+      ],
+      "reasoningEffort": "max",
+    },
+    "artistry": {
+      "description": "Creative design, unconventional approaches, lateral thinking, novel solutions",
+      "model": "opencode-go/deepseek-v4-flash",
+      "fallback_models": [
+        {
+          "model": "opencode/deepseek-v4-flash-free",
+        },
+      ],
+      "reasoningEffort": "high",
+    },
+    "quick": {
+      "description": "Fast fixes, simple edits, spelling, trivial changes, boilerplate",
+      "prompt_append": "Be fast. Minimize tool calls. Use the simplest fix. Do not over-engineer.",
+      "model": "opencode/mimo-v2.5-free",
+    },
+    "unspecified-low": {
+      "description": "General low-effort tasks, basic lookups, simple modifications",
+      "model": "opencode/mimo-v2.5-free",
+    },
+    "unspecified-high": {
+      "description": "Important high-effort tasks requiring stronger model, thorough work",
+      "model": "opencode-go/qwen3.7-plus",
+      "fallback_models": [
+        {
+          "model": "opencode/deepseek-v4-flash-free",
+        },
+      ],
+      "reasoningEffort": "high",
+    },
+    "writing": {
+      "description": "Documentation, prose, technical writing, changelogs, README files",
+      "prompt_append": "Write clearly and concisely. Use active voice. Match existing document tone.",
+      "model": "opencode/deepseek-v4-flash-free",
+      "reasoningEffort": "high",
+    },
+    "git": {
+      "model": "opencode/deepseek-v4-flash-free",
+      "description": "All Git operations: commits, branches, history, blame, bisect, rebase",
+      "prompt_append": "Focus on atomic commits, clear messages, safe operations. Use the cheapest model \u2014 git operations are simple and don't need reasoning.",
+    },
+  },
+  "agents": {
+    "architect": {
+      "model": "opencode-go/deepseek-v4-pro",
+      "fallback_models": ["opencode-go/mimo-v2.5-free"],
+      "reasoningEffort": "max",
+      "thinking": {
+        "type": "enabled",
+        "budgetTokens": 16000,
+      },
+    },
+    "atlas": {
+      "model": "opencode-go/mimo-v2.5",
+      "fallback_models": ["opencode-go/mimo-v2.5-free"],
+      "reasoningEffort": "low",
+      "prompt_append": "Verify your work after every edit cycle. Run lsp_diagnostics on changed files. Fix new errors before declaring done.",
+    },
+    "prometheus": {
+      "model": "opencode-go/qwen3.7-plus",
+      "fallback_models": ["opencode-go/mimo-v2.5-free"],
+      "reasoningEffort": "max",
+      "prompt_append": "Design decision-complete work plans. Explore first, ask few sharp questions. Decompose into parallel task graphs with verification gates. Never implement — plan only.",
+    },
+    "build": {
+      "reasoningEffort": "max",
+    },
+    "explore": {
+      "model": "opencode/mimo-v2.5-free",
+      "fallback_models": ["opencode-go/deepseek-v4-flash"],
+    },
+    "general": {
+      "category": "unspecified-low",
+      "prompt_append": "\n\n## Context-Mode Tooling (Memory & Research)\nThis agent has access to context-mode tools for persistent memory and research:\n- ctx\\_search: Search indexed knowledge (codebase patterns, prior decisions)\n- ctx\\_fetch\\_and\\_index: Fetch web content and store in searchable index\n- ctx\\_index: Store structured knowledge for future retrieval\n\nUse ctx\\_search before asking repetitive questions. Use ctx\\_fetch\\_and\\_index for web research that benefits future sessions.",
+      "fallback_models": ["opencode-go/deepseek-v4-flash"],
+    },
+    "hephaestus": {
+      "model": "opencode-go/mimo-v2.5",
+      "fallback_models": ["opencode-go/mimo-v2.5-free"],
+      "reasoningEffort": "max",
+      "prompt_append": "Verify your work after every edit cycle. Run lsp_diagnostics on changed files. Fix new errors before declaring done.",
+    },
+    "librarian": {
+      "model": "opencode/deepseek-v4-flash-free",
+      "fallback_models": ["opencode-go/deepseek-v4-flash"],
+      "prompt_append": "Use ctx_search for memory retrieval (past decisions, patterns). Use ctx_fetch_and_index for fetching live docs (will be indexed for future searches). Use ctx_index to store structured findings. Use ctx_batch_execute to run multiple shell queries efficiently in one call.",
+    },
+    "metis": {
+      "model": "opencode-go/qwen3.7-plus",
+      "fallback_models": ["opencode-go/minimax-m3"],
+    },
+    "momus": {
+      "model": "opencode-go/minimax-m3",
+      "fallback_models": ["opencode-go/deepseek-v4-flash"],
+    },
+    "multimodal-looker": {
+      "model": "opencode/deepseek-v4-flash-free",
+      "fallback_models": ["opencode-go/deepseek-v4-flash"],
+    },
+    "oracle": {
+      "model": "opencode-go/minimax-m3",
+      "fallback_models": ["opencode-go/mimo-v2.5-free"],
+      "reasoningEffort": "max",
+      "thinking": {
+        "type": "enabled",
+        "budgetTokens": 8000,
+      },
+      "prompt_append": "You are a read-only consultation agent. Provide high-quality reasoning for debugging hard problems and architecture decisions. Be concise, cite specifics, and state confidence levels.",
+    },
+    "review": {
+      "model": "opencode-go/minimax-m3",
+      "fallback_models": ["opencode-go/mimo-v2.5-free"],
+      "temperature": 0.1,
+      "reasoningEffort": "low",
+      "prompt_append": "Review diffs for bugs, regressions, risky changes, and missing tests. Prioritize by severity. Check for silent failures and edge cases. Do not refactor while reviewing.",
+    },
+    "scout": {
+      "model": "opencode/mimo-v2.5-free",
+      "reasoningEffort": "none",
+      "prompt_append": "Research external dependencies thoroughly. Clone repos into managed cache, inspect library source upstream. Cross-reference local code against upstream implementations. Return actionable findings only.",
+      "fallback_models": ["opencode-go/deepseek-v4-flash"],
+    },
+    "sisyphus": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "fallback_models": ["opencode-go/mimo-v2.5-free"],
+      "reasoningEffort": "max",
+      "prompt_append": "\n\n## Workflow Routing\nFor any non-trivial task (new feature, refactor, bug hunt, anything multi-step), default to the serious workflow:\n1. Vague idea? -> Dev Protocol (AMBITION -> LANDSCAPE -> VALIDATION -> SPECIFICATION)\n2. Clear goal? -> /start-work (Prometheus plans -> Momus validates -> executes with verification)\n3. Shipped? -> Dev Protocol (POLISH -> EXPLAINER -> SPEC_SYNC -> REVIEW)\nFor quick tasks (typo fix, config tweak, read a file) just chat normally.\n\n\n## Context-Mode Tooling\nUse ctx_search for memory retrieval before asking repeat questions. Use ctx_fetch_and_index to fetch web content and store it for future retrieval. Use ctx_index to store structured findings. Use ctx_batch_execute to run multiple shell queries efficiently.\n\n## Clarification Protocol\nBefore implementation, check: is the goal clear? Scope defined? Constraints stated? Any ambiguous terminology? If the codebase can answer it, resolve silently. If not, ask at most 3 targeted questions with sensible defaults. Never guess \u2014 the research shows an 80-point accuracy penalty for guessing on ambiguous tasks.\n\n## Verification\nAfter every file edit, run `lsp_diagnostics` on the changed file to catch errors immediately.\n\n## Pre-Commit Gate\nBefore marking any task complete, re-read and confirm `lsp_diagnostics` shows zero new errors.\n\n## Project Memory\nAt session start, read `.omo/project-context.md` if it exists. At session end, update it with any new architectural decisions or configuration changes.",
+    },
+    "sisyphus-junior": {
+      "model": "opencode/deepseek-v4-flash-free",
+      "prompt_append": "Execute focused tasks with discipline. Verify work with lsp_diagnostics after each edit. Do not over-engineer. Stay within scope boundaries.",
+      "fallback_models": ["opencode-go/deepseek-v4-flash"],
+    },
+    "worker": {
+      "model": "opencode-go/mimo-v2.5",
+      "fallback_models": ["opencode-go/mimo-v2.5-free"],
+      "reasoningEffort": "low",
+    },
+    "test-writer": {
+      "model": "opencode-go/qwen3.7-plus",
+      "fallback_models": ["opencode-go/mimo-v2.5-free"],
+      "reasoningEffort": "high",
+      "disable": false,
+      "tools": {
+        "edit": true,
+        "bash": false,
+        "task": true,
+      },
+    },
+  },
+}

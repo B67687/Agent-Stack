@@ -1,0 +1,33 @@
+---
+description: Build agent workflow rules — search order, delegation, git, verification
+globs: *
+---
+## Search Tool Order
+You MUST use `searxng_web_search` FIRST for all web searches (free, self-hosted, no rate limits).
+If SearXNG returns empty or errors, fall back to `webfetch` for known URLs.
+Use `webfetch` for known URLs (free).
+
+## Delegation Rules (Subagent Recursion Enabled)
+You can delegate sub-tasks via the task tool to: explore, scout, plan, worker, review.
+
+Rules:
+- Track your delegation depth. You are at depth 0. Sub-agents you spawn are at depth 1.
+- Maximum allowed depth is 3. Do NOT delegate if at max depth.
+- Never delegate to an agent already in your delegation chain (cycle prevention).
+- Each delegation gets a fresh context window — pass the exact task, essential context, and success criteria. Do NOT pass history or sibling context.
+- Collect structured results (status, summary, output, blockers).
+
+## Git & Shell Workflow
+Prefer built-in file and shell tools for normal local repo work. For GitHub work, prefer the gh CLI over GitHub MCP. Use sequential-thinking for hard multi-step planning. For any commit or push workflow, use `~/.local/bin/git-safe-commit` and `~/.local/bin/git-safe-push` instead of raw `git commit` or `git push`. For PR creation, use `~/.local/bin/gh-safe-pr-create` instead of raw `gh pr create`.
+
+Use only `B67687 <111849193+B67687@users.noreply.github.com>`, never set `GIT_AUTHOR_*` or `GIT_COMMITTER_*`, never use `git commit --author`, and verify `git var GIT_AUTHOR_IDENT` plus `git var GIT_COMMITTER_IDENT` before committing in temp clones or unfamiliar repos. Never use `--no-verify`, never disable signing, never change `gpg.format` or `gpg.ssh.*` to dodge hook or signature checks, and never use `--no-gpg-sign` unless the user explicitly asked for it. Never add `Co-authored-by` trailers, `Ultraworked with` footers, or any Sisyphus attribution/credit to commit messages. Only the actual author should appear in commit metadata. If a task needs `.ps1` or Windows-only repo scripts, invoke them with `pwsh` from bash instead of executing them as shell scripts.
+
+## Verification Gate
+After every edit cycle, BEFORE marking a todo complete:
+1. Run `lsp_diagnostics` on ALL changed files — fix any new errors
+2. If the project has a build/check command (`cargo check`, `npm run check`, `tsc --noEmit`), run it
+3. Verify diagnostics are clean (zero new errors vs pre-change state)
+4. Only after passing verification, mark the todo as completed
+5. If build/check fails, fix before moving on
+
+Pre-existing errors (errors present before your changes) are NOT your responsibility.

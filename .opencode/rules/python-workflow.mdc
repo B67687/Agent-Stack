@@ -1,0 +1,38 @@
+---
+description: Python coding standards — uv, ruff, basedpyright, type annotations, pydantic v2, pathlib
+globs: "**/*.py"
+---
+
+# Python Workflow Rules
+
+## Toolchain
+
+1. **Use `uv` for all package management.** No `pip`, `pipenv`, or `poetry` commands. Use `uv add <package>`, `uv sync`, `uv run <script>`.
+2. **Use `ruff` for both linting and formatting.** Run `ruff check .` and `ruff format .` before every commit. Configure in `pyproject.toml` under `[tool.ruff]`.
+3. **Use `basedpyright` for type checking.** Run `basedpyright` before commit. Configure in `pyproject.toml` under `[tool.basedpyright]`.
+
+## Type System
+
+4. **Type annotations on all function signatures** — parameters and return types. No untyped functions. Use `from __future__ import annotations` at the top of every file to enable PEP 604 syntax.
+5. **Use `type` aliases for complex union/nested types** — e.g. `type JsonDict = dict[str, Any]`. Define at module level, not inline.
+6. **Prefer `Protocol` over `ABC`** for structural subtyping. Use `@runtime_checkable` only when necessary.
+
+## Data Models
+
+7. **Use Pydantic v2 for all data models.** Derive from `pydantic.BaseModel`. Use `model_validator` and `field_validator` instead of `__init__` overrides.
+8. **Use `dataclasses` only for internal (non-serialized) data** where no validation is needed. Otherwise, always Pydantic.
+
+## Error Handling
+
+9. **No bare `except:` clauses.** Always specify the exception type: `except ValueError:`. Use `except Exception as e:` only at the top-level boundary.
+10. **Use `try`/`except` narrowly** — wrap only the line that can raise, not a whole block.
+
+## File I/O
+
+11. **Use `pathlib.Path` over `os.path`** functions. No `os.path.join()`, `os.path.exists()`, `os.listdir()`. Use `Path / "subdir"`, `Path.exists()`, `Path.iterdir()`.
+12. **Use `Path.read_text()` / `Path.write_text()`** instead of `open()` context managers for simple file reads/writes.
+
+## Structure
+
+13. **250 LOC ceiling per module** — same as Rust. Extract helpers into submodules or `_utils.py`.
+14. **Use `if __name__ == "__main__":` guard** in every executable script. Define a `main()` function — never put top-level logic in the guard body.

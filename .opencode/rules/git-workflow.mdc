@@ -1,0 +1,46 @@
+---
+description: Git conventions — atomic commits, commit message format, signing, squash strategy, no attribution tags
+globs: "**/*"
+---
+
+# Git Workflow Rules
+
+## Commit Structure
+
+1. **Atomic commits** — one logical change per commit. A commit should contain exactly the changes needed for a single bug fix, feature, or refactoring step. Split mixed changes across commits using `git add -p` or staged partials.
+2. **No `--no-verify`** — never bypass pre-commit hooks. If a hook is slow or broken, fix the hook, don't skip it.
+
+## Commit Messages
+
+3. **Present tense imperative subject line** (50 characters max):
+   ```
+   Add user session timeout handling
+   ```
+   Not: "Added", "Adds", "Adding", or "Fixes issue with..."
+
+4. **Blank line after subject.** Body wraps at 72 characters, explaining *why* (not *what*):
+   ```
+   Add user session timeout handling
+
+   Unauthenticated sessions were holding resources indefinitely.
+   This introduces a configurable TTL with a 30-minute default that
+   reclaims sessions after the deadline. The cleanup runs inline
+   on each session access to avoid needing a background worker.
+   ```
+
+5. **Use `git commit -S` for signing** — all commits must be GPG/SSH signed. Configure with `git config commit.gpgsign true` or `git config gpg.format ssh`.
+
+## Branch Strategy
+
+6. **Squash before push to shared branches** (`main`, `develop`, `release/*`) — rebase-interactive to squash fixup commits, WIP history, and "address review feedback" commits into clean logical units.
+7. **Use `git pull --rebase`** instead of `git pull` (merge) to keep a linear history. Set `git config pull.rebase true`.
+
+## Attribution
+
+8. **No `Co-authored-by:` or `Sisyphus` attribution tags** in commit messages. All work is the user's own. The commit author field is the sole attribution.
+9. **No `Signed-off-by:`** unless the project DCO requires it. If a project mandates DCO, follow its convention exactly — no creative variant tags.
+
+## History Investigation
+
+10. **Use `git log -S<string>` (pickaxe)** to find commits that introduced or removed a specific string — more precise than `git log --grep` for code changes.
+11. **Use `git bisect`** for regression hunting. Automate with `git bisect run` and a reproducer script.

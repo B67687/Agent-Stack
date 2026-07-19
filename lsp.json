@@ -1,0 +1,20 @@
+{
+  // LSP daemon config — paths are absolute per-machine.
+  // $HOME expansion is NOT supported by the daemon.
+  "typescript": {
+    "command": ["/home/nami/.local/bin/resolve-ts-lsp"],
+    "extensions": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".mts", ".cts"]
+  },
+  "kotlin-ls": {
+    "command": ["/home/nami/.local/bin/kotlin-ls", "--stdio"],
+    "extensions": [".kt", ".kts"]
+  },
+  "html": {
+    "command": ["vscode-html-language-server", "--stdio"],
+    "extensions": [".html", ".htm"]
+  },
+  "css": {
+    "command": ["vscode-css-language-server", "--stdio"],
+    "extensions": [".css", ".scss", ".less"]
+  }
+}
