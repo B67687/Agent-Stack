@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# pre-commit — Pass-through shim: re-invoke the global pre-commit hook.
+#
+# core.hooksPath is overridden repo-locally to scripts/hooks, so the global
+# ai-commit-hooks (GPG/attribution enforcement) would otherwise be bypassed.
+# Re-invoke the global hook with the same args to preserve that behavior.
+set -euo pipefail
+
+GLOBAL_PRE_COMMIT="$HOME/.config/git/ai-commit-hooks/pre-commit"
+if [[ -f "$GLOBAL_PRE_COMMIT" ]]; then
+  bash "$GLOBAL_PRE_COMMIT" "$@"
+fi

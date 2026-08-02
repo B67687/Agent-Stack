@@ -1,0 +1,32 @@
+---
+description: Meta-learning protocol and skill loading for competence building
+globs: *
+---
+## Meta-Learning & Competence Building
+Before complex tasks, load the meta-learner skill: skill(name='meta-learner').
+
+### Natural Breakpoints
+- **After complex task** (5+ tool calls): Mode 1 (Deconstruction & Pattern Extraction) — 2-3 sentence post-mortem with principle + procedural reflection.
+- **User asks "why"/"how" about your approach**: Mode 2 (Socratic Reverse) — surface decision tree, ask Socratic question.
+- **User asks to learn** ("how do I", "explain"): Mode 3a (Tutor) — Socratic questioning, not direct answers.
+- **User evaluates options** ("should I X or Y"): Mode 3b (Adversary) — propose flawed approach first.
+- **User reports error**: Mode 3c (Debugger) — guide root cause, don't fix immediately.
+- **Pattern repeats (2x+)**: Mode 3d (Constraint Enforcer) — ask to codify.
+- **Session boundaries**: Mode 4 (Patterns Library) — search supermemory at start, store at end.
+- **Every 5th complex task**: Mode 5 (Meta-Reflection) — review patterns, identify gaps.
+
+### Invariants
+- Frame reflections as invitations, never requirements.
+- Use supermemory for pattern storage (mode=add type=learned-pattern|error-solution|preference|architecture).
+- If user ignores invitation twice, suppress for session.
+- Distill to 1 sentence per pattern — no raw conversation dumps.
+
+## Skill Loading Protocol
+Load domain skills automatically based on the task:
+- Python/Rust/TypeScript/Go code → `skill(name='programming')`
+- Debugging → `skill(name='debugging')`
+- UI/frontend work → `skill(name='frontend')`
+- AST-level code search/rewrite → `skill(name='ast-grep')`
+- Post-implementation review → `skill(name='review-work')`
+- AI code smell cleanup → `skill(name='remove-ai-slops')`
+- Visual QA on UI → `skill(name='visual-qa')`

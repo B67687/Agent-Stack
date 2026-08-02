@@ -1,0 +1,116 @@
+---
+description: Model routing policy for opencode + OMO agents — which model each agent/category uses and why
+globs: ["**/oh-my-openagent.jsonc", "**/opencode.jsonc", "**/.omo/plans/**", "**/.opencode/rules/model-routing.mdc"]
+alwaysApply: false
+---
+
+# Model Routing (opencode-go landscape, ratified 2026-08-01, re-routed 2026-08-02)
+
+## Canonical relationship
+
+This file is the always-injected routing policy. The live implementation lives in
+`~/.omo/omo.jsonc` (agents map, categories map,
+background_task.modelConcurrency). `opencode.jsonc` base model/small_model/agents are
+untouched by routing. **Where this file and the config differ, the config wins** (it
+executes); this file records intent so future edits stay justified.
+
+## Routing table (agent → model → fallback)
+
+| Agent | Model | Fallback |
+|---|---|---|
+|| oracle / architect / prometheus | `opencode-go/deepseek-v4-flash` | `opencode-go/qwen3.7-plus` |
+| test-writer / review | `opencode-go/gpt-5.6-luna` | `opencode-go/qwen3.7-plus` |
+|| metis / momus | `opencode-go/deepseek-v4-flash` | `opencode-go/qwen3.7-plus` |
+| sisyphus / build | `opencode-go/deepseek-v4-flash` | (existing) |
+|| worker / hephaestus / atlas | `opencode-go/deepseek-v4-flash` | (existing) |
+| explore / scout / quick | `opencode/mimo-v2.5-free` | (existing) |
+| general | category `unspecified-low` | (existing) |
+| librarian / multimodal-looker / sisyphus-junior / writing / git | `opencode/deepseek-v4-flash-free` | (existing) |
+
+## Category table
+
+| Category | Model |
+|---|---|
+|| ultrabrain | `opencode-go/deepseek-v4-flash` |
+|| unspecified-high | `opencode-go/deepseek-v4-flash` |
+| visual-engineering | `opencode-go/minimax-m3` |
+| artistry / deep | `opencode-go/deepseek-v4-flash` |
+| writing / git | `opencode/deepseek-v4-flash-free` |
+| quick / unspecified-low | `opencode/mimo-v2.5-free` |
+
+## Why (rationale, verified 2026-08-01, re-verified 2026-08-02)
+
+- **DeepSeek V4 Flash on the frontier** (re-routed 2026-08-02 after 0731 official release):
+  DeepSeek shipped V4-Flash-0731 official on 2026-07-31 (re-post-trained, TB2.1 82.7,
+  DeepSWE 54.4) with benchmarks "far exceeding V4-Pro-Preview" — while the V4-Pro
+  API was NOT updated (still the Apr preview). Flash now beats Pro on strength AND
+  price ($0.14/$0.28 vs $0.435/$0.87) AND pool ($60 vs $15/mo). The whole paid
+  stack consolidates onto flash: frontier trio + planners (metis/momus, off
+  minimax-m3) + worker/hephaestus/atlas (off mimo-v2.5 — same price, weaker).
+  qwen3.7-plus kept at concurrency 3 as fallback/overflow. Qwen3.7 Max ($2.50/$7.50)
+  stays budget-blocked — concurrency 0. Kimi K2.7 Code ($0.95/$4.00) stays demoted.
+  Re-evaluate when V4-Pro official lands ('coming soon').
+- **fallback_models allowlist (2026-08-03, claude-opus-5 incident)**: every agent/category carries
+  `fallback_models: [opencode-go/deepseek-v4-flash, opencode-go/gpt-5.6-luna, opencode-go/minimax-m3,
+  opencode/deepseek-v4-flash-free, opencode/mimo-v2.5-free]` — suppresses OMO's HARDCODED
+  AGENT_MODEL_REQUIREMENTS fallback chain (sisyphus chain[0] was claude-opus-5/anthropic —
+  fired on transient errors despite disabled_providers, causing 'insufficient balance'
+  mystery switches; see docs/INCIDENTS.md). Test 5 enforces this allowlist permanently.
+- **GPT 5.6 Luna on code-gen**: budget frontier (SWE-Pro 62.7, coding rank #6,
+  $0.20/$1.20 — 1/12 of Max's input price, 2,050 req/5h). **Luna is served via
+  OpenAI `/responses`, not chat/completions** — works only through opencode's
+  BUILT-IN opencode-go provider, which auto-selects transport per model.
+- **MiniMax M3 only on visual-engineering**: the one slot that genuinely needs
+  image/video input. Agentic numbers are vendor-only and BenchLM-independent ranks it
+  weak (#96/128 agentic, 40.5/100); flash 0731 dominates (TB2.1 82.7 vs 66.0) at
+  2.7× less. M3 supersedes minimax-m2.7. metis/momus moved to flash (text-only).
+- **DeepSeek V4 Flash on main**: 31,650 req/5h effectively unlimited, $0.14,
+  TB2.1 82.7 after the 0731 update — the workhorse.
+- **mimo-v2.5-free on trivial**: free tier, ~30k req/5h, high-volume grep-style
+  work must not bleed the shared $12/5h value pool that funds the frontier tier.
+- **qwen3.7-plus over qwen3.6-plus**: 3.6-plus is superseded and has a known
+  tool-call-loop bug. (qwen3.6-plus + minimax-m2.7 removed from
+  modelConcurrency.)
+
+## NOT-list (do not do)
+
+1. **NEVER add a custom `opencode-go` provider entry with
+   `@ai-sdk/openai-compatible`** — it breaks gpt-5.6-luna (responses-only
+   transport). The built-in opencode-go provider handles per-model transport.
+2. No Kimi K3 ($3/$15), no Grok 4.5 ($2/$6) — spend stays below that tier.
+3. No GLM-5.2 on this platform ($1.40/$4.40 sandwiched; only earns its place
+   self-hosting the MIT weights).
+4. Routing scope only — no permission/hook/agent-definition/provider changes.
+5. No non-opencode-go / non-deepseek providers.
+6. No `opencode-go/deepseek-v4-pro` — still the Apr preview; V4-Flash-0731 official dominates it on strength, price, and pool. Re-evaluate only when V4-Pro official ships.
+
+## Budget layering
+
+Three enforcement layers (deliberate, not a conflict): soft routing target ~$15/mo
+(falsification trigger above) → hard block via routing + `modelConcurrency` caps
+(per-model concurrency zeros out budget-blocked models; qwen3.7-max concurrency=0 since 2026-08-02)
+→ monitoring ceiling $60/mo. Dead budget files `cost-guard.config.json` + `token-monitor.json` deleted 2026-08-02 (commit a8cb111).
+
+## Refresh trigger
+
+Lightweight periodic re-review (LANDSCAPE-lite): when the user senses the
+landscape shifted, or a model is added/retired on opencode.ai/docs/go, or
+falsification signals appear (frontier outputs no measurable gain ~2 weeks, main
+agent 429-starvation, spend >$15/mo). Re-verify against the live model list
+(https://opencode.ai/zen/go/v1/models) and models.dev before changing anything.
+
+## Benchmark integrity (2026-08-03)
+
+When comparing models during LANDSCAPE checks, cite ONLY contamination-resistant
+benches. **SWE-bench Verified is DEAD as a signal** — OpenAI Frontier Evals
+stopped reporting it (Apr 2026): audit found >60% of tasks unsolvable-as-written,
+models reproduce gold patches VERBATIM from task ID, saturated at 93.9%;
+any score >80% warrants harness/tool-access scrutiny. Do NOT cite it.
+
+Trustworthy: SWE-bench Pro (contamination-resistant by design — GPL-copyleft
++ private repos, held-out/commercial subsets; frontier ~59% on Pro vs 80-95%
+on Verified), LiveCodeBench (time-split, contamination-free by design), HLE +
+PaperBench (novel/fail-safe design). Caveat-only: Terminal-Bench 2.1 (canary
+"largely symbolic safeguard" per its own paper; interactive-CLI harder to game
+but vendor-reported numbers like flash 0731's 82.7 need independent confirm),
+BenchLM (aggregate), NL2Repo/Cybergym/Toolathlon/DSBench/DeepSWE (vendor-reported).

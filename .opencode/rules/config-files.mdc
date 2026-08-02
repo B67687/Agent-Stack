@@ -1,0 +1,32 @@
+---
+description: Config file conventions — key ordering, indentation, trailing commas, type choices
+globs: "**/*.{jsonc,json,yaml,yml,toml}"
+---
+
+# Config Files Rules
+
+## JSON & JSONC
+
+1. **Sort keys alphabetically** in JSON and JSONC objects. Every object's keys should be in ASCII sort order (`a` before `b`, lowercase before uppercase).
+2. **No trailing commas in `.json` files** — JSON spec forbids them. Use `.jsonc` extension if comments or trailing commas are needed.
+3. **Use 2-space indentation** for all JSON and JSONC files. No tabs.
+4. **Use JSONC for any config that needs comments.** Standard JSON is for machine-only data.
+
+## YAML
+
+5. **2-space indentation** for YAML files. No tabs. Align nested keys at the same level.
+6. **Prefer `string` over `enum` in YAML configs** — enums create tight coupling and require schema updates for new values. Use a documented set of string constants instead.
+7. **Use `#` comments sparingly** — explain *why*, not *what*.
+8. **Quote strings containing special characters** (`:`, `#`, `{`, `}`, `[`, `]`, `,`, `&`, `*`, `?`, `|`, `-`, `<`, `>`, `=`, `!`, `%`, `@`, `` ` ``). Unquoted strings otherwise.
+9. **Use `---` document separator** at the start of multi-document YAML files. Single-document files omit it.
+
+## TOML
+
+10. **Use `[table]` headers in ASCII order.** Within a table, sort keys alphabetically.
+11. **Prefer inline tables for simple key-value pairs** (`key = { a = 1, b = 2 }`). Use multi-line tables for 3+ entries.
+12. **Use `"` for strings** — TOML supports `'` literals but `"` is more visually consistent with JSON.
+
+## General
+
+13. **No trailing whitespace.** Every config file must end with a single trailing newline.
+14. **Validate configs at CI time** — don't rely on the runtime to catch syntax errors.

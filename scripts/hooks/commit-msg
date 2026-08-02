@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# commit-msg — Pass-through shim: re-invoke the global commit-msg hook.
+#
+# core.hooksPath is overridden repo-locally to scripts/hooks, so the global
+# ai-commit-hooks (GPG/attribution enforcement) would otherwise be bypassed.
+# Re-invoke the global hook with the same args to preserve that behavior.
+set -euo pipefail
+
+GLOBAL_COMMIT_MSG="$HOME/.config/git/ai-commit-hooks/commit-msg"
+if [[ -f "$GLOBAL_COMMIT_MSG" ]]; then
+  bash "$GLOBAL_COMMIT_MSG" "$@"
+fi

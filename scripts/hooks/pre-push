@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# pre-push — Repo-local CI gate for Agent-Stack (~/.config/opencode).
+#
+# Chain: (1) global GPG integrity gate (attribution/secret/GPG enforcement
+# lives in the global hooks; core.hooksPath is overridden repo-locally to
+# THIS dir, so we re-invoke the global pre-push to preserve that behavior),
+# then (2) Agent-Stack-specific gates that the global hooks do NOT cover:
+#   - redact-config.sh --check   (portability / secret leak scan)
+#   - config-schema-check.mjs    (omo.jsonc valid against installed schema)
+#   - docs-sync assertions       (docs carry live-config values — Test 30 subset)
+#
+# Fast by design: the full regression-test.sh (34 tests + Post-Run
+# Maintenance which clears ~/.cache/opencode/packages) is NOT run here —
+# run it on demand: bash scripts/regression-test.sh. (GitHub CI was
+# removed 2026-08-04: it duplicated these local gates and could not run
+# schema-check/regression anyway since they need ~/.omo/omo.jsonc,
+# which lives outside the clone.)
+
+set -euo pipefail
+
+# --- 1) Global GPG integrity gate (preserve global enforcement) ----------
+GLOBAL_PRE_PUSH="$HOME/.config/git/ai-commit-hooks/pre-push"
+if [[ -f "$GLOBAL_PRE_PUSH" ]]; then
+  bash "$GLOBAL_PRE_PUSH" "$@"
+fi
+
+# --- 2) Repo-local gates --------------------------------------------------
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+fail() {
+  echo "  ❌ $1" >&2
+  exit 1
+}
+
+echo "--- Local CI gates (Agent-Stack) ---"
+
+# 2a) Portability / secret scan
+if [[ -x scripts/redact-config.sh ]]; then
+  bash scripts/redact-config.sh --check >/dev/null 2>&1 \
+    || fail "redact-config.sh --check found leaks (portability/secret scan)"
+  echo "  ✅ redact-config.sh --check"
+fi
+
+# 2b) Schema validation
+if [[ -f scripts/config-schema-check.mjs ]]; then
+  node scripts/config-schema-check.mjs >/dev/null 2>&1 \
+    || fail "config-schema-check.mjs failed (omo.jsonc invalid against schema)"
+  echo "  ✅ config-schema-check.mjs"
+fi
+
+# 2c) Docs-sync gate (Test 30 subset — docs must carry live-config values)
+if command -v grep >/dev/null 2>&1; then
+  grep -q "deepseek-v4-flash:8" docs/CONFIG_MAP.md || fail "CONFIG_MAP.md missing deepseek-v4-flash:8 (doc drift)"
+  grep -q "mimo-v2.5-free:10"   docs/CONFIG_MAP.md || fail "CONFIG_MAP.md missing mimo-v2.5-free:10 (doc drift)"
+  grep -q "qwen3.7-max:0"    docs/CONFIG_MAP.md || fail "CONFIG_MAP.md missing qwen3.7-max:0 (doc drift)"
+  grep -q "compaction-context-injector" README.md || fail "README.md missing compaction-context-injector (doc drift)"
+  grep -q "5.7"                 docs/WORKFLOW.md  || fail "WORKFLOW.md missing WAL check 5.7 (doc drift)"
+  grep -q "deepseek-v4-pro"     docs/AGENTS.md    || fail "AGENTS.md missing deepseek-v4-pro NOT-routed (doc drift)"
+  echo "  ✅ docs-sync gate"
+fi
+
+echo "✅ Local CI gates passed — safe to push."
