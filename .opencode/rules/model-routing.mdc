@@ -4,7 +4,7 @@ globs: ["**/oh-my-openagent.jsonc", "**/opencode.jsonc", "**/.omo/plans/**", "**
 alwaysApply: false
 ---
 
-# Model Routing (opencode-go landscape, ratified 2026-08-01, re-routed 2026-08-02)
+# Model Routing (opencode-go landscape, ratified 2026-08-01, re-routed 2026-08-02, re-paired 2026-08-20)
 
 ## Canonical relationship
 
@@ -18,11 +18,11 @@ executes); this file records intent so future edits stay justified.
 
 | Agent | Model | Fallback |
 |---|---|---|
-|| oracle / architect / prometheus | `opencode-go/deepseek-v4-flash` | `opencode-go/qwen3.7-plus` |
+| oracle / prometheus | `opencode-go/glm-5.2` | `opencode-go/mimo-v2.5` |
 | test-writer / review | `opencode-go/gpt-5.6-luna` | `opencode-go/qwen3.7-plus` |
-|| metis / momus | `opencode-go/deepseek-v4-flash` | `opencode-go/qwen3.7-plus` |
-| sisyphus / build | `opencode-go/deepseek-v4-flash` | (existing) |
-|| worker / hephaestus / atlas | `opencode-go/deepseek-v4-flash` | (existing) |
+| metis / momus | `opencode-go/glm-5.2` | `opencode-go/mimo-v2.5` |
+| architect / sisyphus / build / worker | `opencode-go/mimo-v2.5` | `opencode-go/glm-5.2` |
+| hephaestus / atlas | `opencode-go/mimo-v2.5` | (existing; both disabled) |
 | explore / scout / quick | `opencode/mimo-v2.5-free` | (existing) |
 | general | category `unspecified-low` | (existing) |
 | librarian / multimodal-looker / sisyphus-junior / writing / git | `opencode/deepseek-v4-flash-free` | (existing) |
@@ -31,41 +31,56 @@ executes); this file records intent so future edits stay justified.
 
 | Category | Model |
 |---|---|
-|| ultrabrain | `opencode-go/deepseek-v4-flash` |
-|| unspecified-high | `opencode-go/deepseek-v4-flash` |
+| ultrabrain | `opencode-go/glm-5.2` |
+| unspecified-high | `opencode-go/mimo-v2.5` |
 | visual-engineering | `opencode-go/minimax-m3` |
-| artistry / deep | `opencode-go/deepseek-v4-flash` |
+| artistry / deep | `opencode-go/mimo-v2.5` |
 | writing / git | `opencode/deepseek-v4-flash-free` |
 | quick / unspecified-low | `opencode/mimo-v2.5-free` |
 
-## Why (rationale, verified 2026-08-01, re-verified 2026-08-02)
-
-- **DeepSeek V4 Flash on the frontier** (re-routed 2026-08-02 after 0731 official release):
-  DeepSeek shipped V4-Flash-0731 official on 2026-07-31 (re-post-trained, TB2.1 82.7,
-  DeepSWE 54.4) with benchmarks "far exceeding V4-Pro-Preview" — while the V4-Pro
-  API was NOT updated (still the Apr preview). Flash now beats Pro on strength AND
-  price ($0.14/$0.28 vs $0.435/$0.87) AND pool ($60 vs $15/mo). The whole paid
-  stack consolidates onto flash: frontier trio + planners (metis/momus, off
-  minimax-m3) + worker/hephaestus/atlas (off mimo-v2.5 — same price, weaker).
-  qwen3.7-plus kept at concurrency 3 as fallback/overflow. Qwen3.7 Max ($2.50/$7.50)
-  stays budget-blocked — concurrency 0. Kimi K2.7 Code ($0.95/$4.00) stays demoted.
-  Re-evaluate when V4-Pro official lands ('coming soon').
+- **Re-paired 2026-08-20 after DeepSeek price increase (Aug 17, 2026)**: DeepSeek V4 Flash
+  API prices roughly doubled and OpenCode cut its Go-plan quota to 7,600 req/5h (from
+  ~63,300) and monthly pool to $30 (from $60). Flash is no longer the cheap volume
+  workhorse — it is now the worst of both worlds: worse quality than the A.1-tier models
+  AND no longer the volume king. Budget reality (user's $10/mo Go plan + free Zen tier)
+  forces a **pareto line on the cheap side**: volume agents get the cheapest strong model
+  (MiMo-V2.5), hard-reasoning agents get the best quality-per-quota (GLM-5.2), and the
+  OMO harness is expected to lift MiMo-V2.5 via its guardrails.
+- **MiMo-V2.5 as volume workhorse** (re-paired 2026-08-20): 30,100 req/5h — the only
+  true 30k+ paid model that does NOT train on user data (Muse Spark 1.2 Contributor is
+  45,300/5h but trains on data; Hy3's 8x promo expired → 4,300/5h, off the volume table).
+  Cheapest per-request paid model; independently verified WEAKER than Flash (Akita 67/B
+  vs 78/B, failed all 4 Tier-A criteria) — but acceptable for high-volume grep-style and
+  execution work where the harness compensates. Routes: architect, build, sisyphus,
+  worker, hephaestus, atlas, artistry, deep, unspecified-high (9 agents + general).
+- **GLM-5.2 for hard reasoning** (re-paired 2026-08-20): Akita 92/A.1 (independently
+  verified), BenchLM coding 88th pct, strong agentic — the best quality-per-quota at
+  880 req/5h, $60/mo. Routes the frontier/planning trio: oracle, prometheus,
+  metis, momus, ultrabrain. (Replaces the old 'No GLM-5.2 on this platform' rule — that
+  was superseded when Flash lost its volume/price edge.)
+  metis, momus, ultrabrain. (Replaces the old 'No GLM-5.2 on this platform' rule — that
+  was superseded when Flash lost its volume/price edge.)
 - **fallback_models allowlist (2026-08-03, claude-opus-5 incident)**: every agent/category carries
   `fallback_models: [opencode-go/deepseek-v4-flash, opencode-go/gpt-5.6-luna, opencode-go/minimax-m3,
   opencode/deepseek-v4-flash-free, opencode/mimo-v2.5-free]` — suppresses OMO's HARDCODED
   AGENT_MODEL_REQUIREMENTS fallback chain (sisyphus chain[0] was claude-opus-5/anthropic —
   fired on transient errors despite disabled_providers, causing 'insufficient balance'
   mystery switches; see docs/INCIDENTS.md). Test 5 enforces this allowlist permanently.
+  NOTE: allowlist still names deepseek-v4-flash as the generic safety-net fallback[0];
+  primary routing now points to mimo-v2.5 / glm-5.2.
 - **GPT 5.6 Luna on code-gen**: budget frontier (SWE-Pro 62.7, coding rank #6,
   $0.20/$1.20 — 1/12 of Max's input price, 2,050 req/5h). **Luna is served via
   OpenAI `/responses`, not chat/completions** — works only through opencode's
-  BUILT-IN opencode-go provider, which auto-selects transport per model.
+  BUILT-IN opencode-go provider, which auto-selects transport per model. Also the
+  top-level `opencode.jsonc` default model (set 2026-08-20).
 - **MiniMax M3 only on visual-engineering**: the one slot that genuinely needs
   image/video input. Agentic numbers are vendor-only and BenchLM-independent ranks it
   weak (#96/128 agentic, 40.5/100); flash 0731 dominates (TB2.1 82.7 vs 66.0) at
-  2.7× less. M3 supersedes minimax-m2.7. metis/momus moved to flash (text-only).
-- **DeepSeek V4 Flash on main**: 31,650 req/5h effectively unlimited, $0.14,
-  TB2.1 82.7 after the 0731 update — the workhorse.
+  2.7× less. M3 supersedes minimax-m2.7.
+- **DeepSeek V4 Flash retained only as free-tier / fallback**: `deepseek-v4-flash-free`
+  stays on librarian / multimodal-looker / sisyphus-junior / writing / git (free tier,
+  no budget bleed). The paid `opencode-go/deepseek-v4-flash` is now used ONLY as a
+  fallback safety net (allowlist[0]) and on the two DISABLED agents (atlas, hephaestus).
 - **mimo-v2.5-free on trivial**: free tier, ~30k req/5h, high-volume grep-style
   work must not bleed the shared $12/5h value pool that funds the frontier tier.
 - **qwen3.7-plus over qwen3.6-plus**: 3.6-plus is superseded and has a known
@@ -78,11 +93,10 @@ executes); this file records intent so future edits stay justified.
    `@ai-sdk/openai-compatible`** — it breaks gpt-5.6-luna (responses-only
    transport). The built-in opencode-go provider handles per-model transport.
 2. No Kimi K3 ($3/$15), no Grok 4.5 ($2/$6) — spend stays below that tier.
-3. No GLM-5.2 on this platform ($1.40/$4.40 sandwiched; only earns its place
-   self-hosting the MIT weights).
+3. No Qwen3.7 Max ($2.50/$7.50) — hallucination-prone (Akita v2 51/C); concurrency 0.
 4. Routing scope only — no permission/hook/agent-definition/provider changes.
 5. No non-opencode-go / non-deepseek providers.
-6. No `opencode-go/deepseek-v4-pro` — still the Apr preview; V4-Flash-0731 official dominates it on strength, price, and pool. Re-evaluate only when V4-Pro official ships.
+6. No `opencode-go/deepseek-v4-pro` — still the Apr preview; not worth the spend.
 
 ## Budget layering
 
