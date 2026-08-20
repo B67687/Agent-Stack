@@ -81,7 +81,11 @@ Agent-Stack/
     ├── config-schema-check.mjs ← installed-schema validator (catches TUI ghost-key bug class)
     ├── runtime-regression-test.sh ← staged-boot runtime consumption proof
     ├── restart-opencode.sh   ← validate config, restart opencode, assert reload took effect
-    ├── bwrap-wrap.sh         ← Layer-1 sandbox wrapper (bubblewrap; inert — not the live launch path)
+    ├── bwrap-wrap.sh         ← Layer-1+2 sandbox wrapper (bubblewrap: deny-by-default FS + L2 egress via EGRESS=1; inert — not the live launch path)
+    ├── egress-proxy.sh       ← host-side egress proxy daemon (Squid allowlist → socat UDS; systemd user unit egress-proxy@)
+    ├── egress-relay.sh       ← in-sandbox relay (bind-mounts egress.sock, exports proxy env, execs agent)
+    ├── egress-test.sh        ← L2 egress test suite (T1-T8: allow/deny/fail-closed)
+    ├── egress-allowlist.conf ← egress allowlist (default-deny; lives in egress/)
     ├── hooks/
     │   └── pre-push          ← local CI gate (redact + docs-sync greps; core.hooksPath → scripts/hooks)
     └── validate-jsonc.js     ← JSONC validator + query helper

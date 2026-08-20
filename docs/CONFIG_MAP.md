@@ -14,6 +14,7 @@ Exhaustive reference for every non-default setting across `opencode.jsonc` and `
 | `playwright_*`                          | `ask`   | Interactive browser — confirm before each use                                    |
 | `external_directory: ~/projects/**`     | `allow` | Agent can write to user project directories                                      |
 | `doom_loop`                             | `deny`  | Prevents infinite tool-call loops                                                |
+| Sandbox L1/L2 (filesystem + egress)      | `inert` | `scripts/bwrap-wrap.sh` deny-by-default FS (credential shadow + ro config) + `EGRESS=1` network containment via Squid allowlist (`egress-proxy@agent.service`). Opt-in — live launch path untouched (added 2026-08-15) |
 
 ## Provider
 

@@ -686,8 +686,13 @@ cp "$HOME/.config/opencode/dcp.jsonc" "$BACKUP_DIR/dcp.jsonc" 2>/dev/null
 cp "$HOME/.config/opencode/tui.json" "$BACKUP_DIR/tui.json" 2>/dev/null
 echo "  📦 Backup created: $BACKUP_DIR"
 find "$HOME/.config/opencode/backups/" -maxdepth 1 -type d -mtime +30 -exec rm -rf {} + 2>/dev/null || true
+# NOTE (2026-08-10): do NOT wipe ~/.cache/opencode/packages here — that is the
+# LIVE plugin cache the running harness depends on (DCP/OMO/command-inject).
+# Wiping it on every test run broke the DCP compress tool (empty install dir).
+# If test isolation truly needs a clean cache, point tests at a temp HOME/.cache
+# instead of destroying the live one.
 if [ -d "$HOME/.cache/opencode/packages" ]; then
-    rm -rf "$HOME/.cache/opencode/packages"
+    echo "  ⚠️ NOT wiping live plugin cache (regression-lock fix 2026-08-10) — leaving DCP/OMO installs intact"
 fi
 
 # ── Summary ──

@@ -1,3 +1,16 @@
+## 2026-08-15 — v1.11
+
+### Sandbox Layer 2: Host-Side Egress Proxy (allowlist network containment)
+
+Closes the network half of the attack-surface audit — L1 (2026-08-05) made the filesystem deny-by-default inside the bwrap sandbox; L2 makes **network egress** deny-by-default too. Architecture (spec `spec-l2-egress-proxy-2026-08-05.md`):
+
+- **Host side**: Squid 7.2 CONNECT-only allowlist proxy on `127.0.0.1:13128` (default-deny `dstdomain` allowlist in `egress/egress-allowlist.conf`: deepseek, opencode, tavily, exa, openrouter, github, npm, crates, pypi) + socat Unix-socket bridge (`egress-proxy.sh`, systemd user unit `egress-proxy@agent.service`, enabled+active). Default Ubuntu `squid.service` disabled (an un-allowlisted open proxy would be a hazard).
+- **Sandbox side**: `bwrap-wrap.sh` now `--unshare-net` (netns empty: only `lo`, no NICs/routes/DNS), binds `egress.sock` in, execs `egress-relay.sh` which exposes in-sandbox `http://127.0.0.1:3128` and exports `HTTP(S)_PROXY`/`ALL_PROXY` before exec'ing the agent. **Opt-in via `EGRESS=1`** — the live launch path is untouched; wrapper stays inert by default. Fail-closed: missing socket → launch refused.
+- **Bypass hardening** (from 2026 landscape): host-side judging only (never in-sandbox matcher), hostname allowlist (raw-IP and suffix-attack e.g. `api.deepseek.com.evil.com` denied), DNS resolved host-side at the proxy, CONNECT restricted to :443. SOCKS5 leg dropped (Squid speaks HTTP CONNECT only; would need codex-network-proxy — documented deviation). Domain-fronting/TLS-termination out of scope.
+- **Verified**: `scripts/egress-test.sh` — 9/9 (T1 allowlisted tunnel-up, T1b npm 200, T2 evil denied, T5 raw-IP denied, T6 suffix-attack denied, T3/T4 in-sandbox via relay allow/deny, T7 netns empty, T8 fail-closed).
+
+---
+
 ## 2026-08-06 — v1.10
 
 ### Toolbox Wiring: 4 OMO Skills Activated (13 shipped, 9 deliberately skipped)
