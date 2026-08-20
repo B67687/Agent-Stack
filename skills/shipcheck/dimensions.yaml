@@ -1,0 +1,89 @@
+# Dimensions Taxonomy — /shipcheck (v1, bundled)
+
+# Schema:
+#   <dimension>:
+#     severity: blocking | warn | info
+#     checkers: [list of checker ids — see CHECKERS below]
+#     ai_review: true|false   # true = needs OMO AI skill; NOT-CHECKED if skill unavailable
+#     description: one-liner
+#
+# CHECKERS (ids mapped in shipcheck.py):
+#   semgrep          -> semgrep --config auto (SAST; BLOCKING findings)
+#   trivy-secrets    -> trivy fs --scanners secret
+#   trivy-vulns      -> trivy fs --scanners vuln
+#   audit            -> audit.sh <repo> --report json (standards compliance; WARN tier)
+#   none             -> no machine checker; ai_review governs
+
+dimensions:
+  security:
+    severity: blocking
+    checkers: [semgrep, trivy-secrets]
+    ai_review: false
+    description: "SAST findings, secrets, mutable action tags, known vulns"
+
+  supply-chain:
+    severity: blocking
+    checkers: [trivy-vulns]
+    ai_review: false
+    description: "Vulnerable dependencies, pinned versions"
+
+
+  secrets:
+    severity: blocking
+    checkers: [trivy-secrets]
+    ai_review: false
+    description: "Committed secrets, credentials, API keys"
+
+  dependencies:
+    severity: warn
+    checkers: [trivy-vulns]
+    ai_review: false
+    description: "Known vulnerabilities in dependency tree"
+
+  repo-hygiene:
+    severity: warn
+    checkers: [audit]
+    ai_review: false
+    description: "Standards compliance: gitignore, CI config, commit conventions, docs"
+
+  correctness:
+    severity: warn
+    checkers: []
+    ai_review: true
+    description: "Test coverage adequacy, logic review — AI review dimension"
+
+  privacy:
+    severity: warn
+    checkers: []
+    ai_review: true
+    description: "Data collection, PII handling, telemetry — AI review dimension"
+
+  reliability:
+    severity: warn
+    checkers: []
+    ai_review: true
+    description: "Error handling, retries, observability — AI review dimension"
+
+  accessibility:
+    severity: warn
+    checkers: []
+    ai_review: true
+    description: "WCAG conformance for UI — AI review + visual-qa dimension"
+
+  performance:
+    severity: info
+    checkers: []
+    ai_review: true
+    description: "Hot paths, resource use — AI review dimension"
+
+  documentation:
+    severity: info
+    checkers: []
+    ai_review: true
+    description: "README, changelog, API docs presence and quality — AI review dimension"
+
+  licensing:
+    severity: info
+    checkers: []
+    ai_review: true
+    description: "Dependency licenses, copyleft propagation — AI review dimension"
