@@ -6,4 +6,5 @@ bun.lock
 backups/
 context-mode/
 tasks/
-.omo/
+.omo/__pycache__/
+*.pyc
