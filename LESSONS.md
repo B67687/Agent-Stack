@@ -177,3 +177,33 @@ When a user asks "shouldn't your opinion override mine?", the answer is: the AI 
 
 ### [permanent] "Short answers = uncertainty" signal (human pattern).
 User self-identified: when their answers get short/low-effort, it signals genuine uncertainty, not indifference. Slowing down to investigate uncertainty beats powering through.
+### [permanent] "Short answers = uncertainty" signal (human pattern).
+User self-identified: when their answers get short/low-effort, it signals genuine uncertainty, not indifference. Slowing down to investigate uncertainty beats powering through.
+
+## 2026-08-11 — Development Protocol run (The Grand Metaphysics Program)
+
+### [permanent] Gate evidence is committed at gate close, not remembered.
+REVIEW (Gödel Gate) caught that the VALIDATION COMMIT was non-reproducible — the spike scripts that produced the verdict (24/24, 6/6) existed only in tmp and cited "Evidence: spike_a_dingqi.py" with no file on disk. Any script/artifact that produces a gate verdict is copied into the project tree the moment the gate closes and its path is recorded in the state block. "I remember it ran" is not evidence.
+
+### [permanent] The protocol state file updates at every milestone close, as a first-class step.
+REVIEW FAIL 4 (MAJOR): .omo/protocol-state.md said "M4 PENDING" while the ratified plan and EXPLAINER said "M4 RATIFIED, current M5" — a reader would resume at the wrong point. The state file is the pipeline's single source of truth; a stale one misleads reviewers and future sessions. Milestone close includes: update state file, then proceed.
+
+### [permanent] Claim breadth must not exceed artifact scope in gate outputs.
+validation-output.md claimed 月破/墓庫 "recovered and canon-consistent" but the delivered engine implements only 月建(partial)/旬空/日辰沖. Gate docs must state exactly what is implemented vs documented-only, or the deliverable must implement the full claim. Add a claim-vs-artifact consistency pass to the VALIDATION close checklist.
+
+### [permanent] SHIP exit ledger requirement needs an explicit N/A path for docs-only projects.
+REFLECT's SHIP exit checklist requires .omo/method-ledger.jsonl to pass ledger-check.py, but a docs-only knowledge run never had one and REVIEW correctly marked ledger checks N/A. Retroactive ledger creation is fabrication — record "N/A by declaration" instead. Either maintain a minimal ledger from INBOX or make the exit gate aware of non-code projects.
+
+## 2026-08-20 — Development Protocol run (ci-philosophy: Local-vs-GitHub CI)
+
+### [permanent] Parity contracts need same-commit enforcement.
+REVIEW 3.3 (CRITICAL) caught check-parity.sh accepting an arbitrary SHA while running the local check against the current working tree — two runs on different commits would report identical results. Any local-vs-remote comparison tool must verify HEAD==SHA and a clean tree (agent-ephemera exempted) before trusting either side; otherwise the parity contract is ceremonial. Guard now lives in check-parity.sh (exit 2 on mismatch), mirrored byte-identical across 4 repos.
+
+### [permanent] Builder files canonical-check evidence before the review gate opens.
+The independent reviewer is read-only and cannot generate exit-0 evidence for un-run canonical checks — REVIEW 4.2 flagged 3 of 4 repos with zero recorded runs, and the builder had to produce them post-hoc. File check logs + exit codes with each artifact BEFORE REVIEW starts, or 4.x checks become archaeology. (Extension of the 2026-08-11 lesson "gate evidence is committed at gate close" — that covers scripts producing verdicts; this covers the check RUNS themselves.)
+
+### [permanent] Ledger checks must validate JSON structure, not just evidence paths.
+method-ledger.jsonl had 3 lines each containing TWO merged JSON objects (missing newlines) that a grep-based evidence-resolution check passes silently; only a parse-level check catches them. Run ledger-check at every phase transition and make it a real JSON parse, not a regex.
+
+### [permanent] A dead session is resumable iff the protocol state file is current.
+A session dying mid-gate is an agent-stack reality. protocol-state.md + run-continuation/ are the only resume anchors; update them at every gate close as a first-class step, never batched into "final cleanup". A stale state file makes recovery guesswork.

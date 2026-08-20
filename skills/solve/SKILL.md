@@ -30,6 +30,7 @@ LEVEL 1 — What kind of problem is this?
 
   B. Regression — something that worked is now broken
      → Difference Check (what changed?) → Binary Search (bisect to root)
+     → once root found, LOCK it (characterization/golden/visual baseline, §7.9-7.11) so the fix holds
 
   C. Intermittent / flickering / flaky
      → Scientific Method (hypothesis-driven) + Design of Experiments
@@ -111,7 +112,7 @@ Once you've classified the problem, read the corresponding section(s) from `PROB
 | Classification | Section(s) to read | Why |
 |---|---|---|
 | Unfamiliar / don't know where to start | §1.2 Cynefin, §4.1 BFS, §4.2 DFS | Classify domain → systematic exploration |
-| Regression (was working) | §7.5 Difference Check, §7.3 Binary Search | Find what changed → isolate to root |
+| Regression (was working) | §7.5 Difference Check, §7.3 Binary Search, then LOCK §7.9–7.12 | Find what changed → isolate to root → lock the fix (characterization/golden/visual/contract baseline) so it holds |
 | Intermittent / flaky | §7.1 Scientific Method, §7.8 Design of Experiments | Hypothesis → controlled experiment |
 | Recurring issue | §7.4 Root Cause Analysis (5 Whys), §7.6 Causal Chain | Drive past symptoms to system cause |
 | Large / too big | §3.1 Divide & Conquer, §3.2 MECE | Partition → parallelize |
