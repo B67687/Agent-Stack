@@ -18,25 +18,25 @@ executes); this file records intent so future edits stay justified.
 
 | Agent | Model | Fallback |
 |---|---|---|
-| oracle / prometheus / metis / momus / ultrabrain | `opencode/x-preview-f-free` | `opencode-go/glm-5.2` |
+| oracle / prometheus / metis / momus / ultrabrain | `opencode-go/ox-alpha-free` | `opencode-go/glm-5.2` |
 | test-writer / review | `opencode-go/gpt-5.6-luna` | (existing) |
-| architect / sisyphus / build / worker | `opencode/x-preview-f-free` | `opencode-go/mimo-v2.5` |
+| architect / sisyphus / build / worker | `opencode-go/ox-alpha-free` | `opencode-go/mimo-v2.5` |
 | hephaestus / atlas | `opencode-go/deepseek-v4-flash` | (existing; both disabled) |
-| explore / scout / quick / librarian / multimodal-looker / sisyphus-junior / writing / git | `opencode/x-preview-f-free` | (existing) |
+| explore / scout / quick / librarian / multimodal-looker / sisyphus-junior / writing / git | `opencode-go/ox-alpha-free` | (existing) |
 | general | category `unspecified-low` | (existing) |
 
 ## Category table
 
 | Category | Model |
 |---|---|
-| ultrabrain | `opencode/x-preview-f-free` |
-| unspecified-high / artistry / deep | `opencode/x-preview-f-free` |
+| ultrabrain | `opencode-go/ox-alpha-free` |
+| unspecified-high / artistry / deep | `opencode-go/ox-alpha-free` |
 | visual-engineering | `opencode-go/minimax-m3` |
-| writing / git / quick / unspecified-low | `opencode/x-preview-f-free` |
+| writing / git / quick / unspecified-low | `opencode-go/ox-alpha-free` |
 
 - **Ox Alpha as temporary free workhorse (routed 2026-08-21)**: stealth/reasoning model
-  (`opencode/x-preview-f-free`), announced Aug 20 2026, FREE for ~1 week on Zen
-  ($0.00/$0.00 — no dollar quota during the window). 1M ctx, tool calling, reasoning-capable
+  (`opencode-go/ox-alpha-free`, usage id OPENCODE-GO/OX-ALPHA-FREE), announced Aug 20 2026, FREE on
+  the GO PLAN with UNLIMITED quota (usage limits -/-/-) and on Zen as `x-preview-f-free` for ~1 week
   (live-verified Aug 21 via API: returns `reasoning_content`). ZERO-RETENTION — does NOT
   train on user data (unlike Big Pickle / MiMo-free / Hy3-free / Nemotron-free / Muse
   Contributor-free). Community consensus: likely Zhipu GLM's stealth model (→ plausibly
@@ -68,9 +68,12 @@ executes); this file records intent so future edits stay justified.
   carries a 5-entry allowlist suppressing OMO's HARDCODED AGENT_MODEL_REQUIREMENTS chain
   (sisyphus chain[0] was claude-opus-5/anthropic — fired on transient errors despite
   disabled_providers; see docs/INCIDENTS.md). Pattern now: `fallback_models[0]` = primary
-  model, `[1]` = previous best (glm-5.2 or mimo-v2.5), tail `[2..4]` = gpt-5.6-luna,
-  minimax-m3, deepseek-v4-flash-free. When Ox Alpha's free window ends, fallback
-  auto-catches if it 404s; if it becomes paid, re-benchmark before keeping it.
+  model, `[1]` = previous best (glm-5.2 or mimo-v2.5), tail `[2..4]` = gpt-5.6-luna +
+  deepseek-v4-flash-free + minimax-m3 (FLASH-F before M3 on volume/free chains — free
+  before expensive: Flash 78/B beats M3's weak coding #93; M3 kept before FLASH-F only on
+  quality chains where its 91/A.1 reasoning + 1M ctx matter). When Ox Alpha's free window
+  ends, fallback auto-catches if it 404s; if it becomes paid, re-benchmark before keeping it.
+
   - **GPT 5.6 Luna on code-gen**: budget frontier (SWE-Pro 62.7, coding rank #6,
   $0.20/$1.20 — 1/12 of Max's input price, 2,050 req/5h). **Luna is served via OpenAI
   `/responses`, not chat/completions** — works only through opencode's BUILT-IN
