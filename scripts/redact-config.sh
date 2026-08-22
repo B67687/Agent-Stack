@@ -25,19 +25,30 @@ WARN_PATTERNS=(
   "AIza[0-9A-Za-z_-]{35}:google-api-key"
   "glpat-[A-Za-z0-9]{20,}:gitlab-pat"
   "hf_[A-Za-z0-9]{20,}:huggingface-token"
+  "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}:possible-email-address"
+  "eyJ[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{6,}:jwt-token"
+  "agent-stack-workspace|Agent-Stack-Dev:local-repo-path"
 )
 
 # search|display-name — informational matches (expandable ~ paths, fine to ship).
 INFO_PATTERNS=(
   "PROTOCOL_DIR=~/|\.local/share/opencode:hook-path-uses-expandable-tilde"
+  "[^A-Za-z0-9]nami[^A-Za-z0-9]:local-username"
 )
-
 # Known-intentional matches: "rel-file:pattern-name" — reported but not blocking.
 ALLOWED=(
   ".opencode/rules/build-workflow.mdc:personal-commit-identity"
   "scripts/redact-config.sh:absolute-home-path"
-  )
-
+  ".opencode/rules/build-workflow.mdc:possible-email-address"
+  "ADR/006-attribution-defense.md:possible-email-address"
+  "ADR/012-omo-distribution-hardening.md:possible-email-address"
+  "docs/CHANGELOG.md:possible-email-address"
+  "docs/CONFIG_MAP.md:possible-email-address"
+  "scripts/bwrap-wrap.sh:possible-email-address"
+  "scripts/regression-test.sh:possible-email-address"
+  "scripts/redact-config.sh:possible-email-address"
+  "scripts/redact-config.sh:local-repo-path"
+)
 check_file() {
   local file="$1"
   local rel="${file#"$REPO_DIR"/}"
