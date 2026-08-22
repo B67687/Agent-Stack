@@ -94,7 +94,7 @@ FB_CHECK=$(python3 -c "
 import json5
 omo = json5.loads(open('$HOME/.omo/omo.jsonc').read())
 omo = omo['[opencode]']
-allowed = {'opencode-go/deepseek-v4-flash', 'opencode-go/gpt-5.6-luna', 'opencode-go/minimax-m3', 'opencode/deepseek-v4-flash-free', 'opencode/mimo-v2.5-free'}
+allowed = {'opencode-go/deepseek-v4-flash', 'opencode-go/gpt-5.6-luna', 'opencode-go/minimax-m3', 'opencode-go/mimo-v2.5', 'opencode-go/glm-5.2', 'opencode/deepseek-v4-flash-free', 'opencode/mimo-v2.5-free'}
 forbidden_providers = ('anthropic', 'openai', 'google', 'xai')
 bad = []
 for scope_name in ['agents', 'categories']:

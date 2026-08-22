@@ -24,7 +24,7 @@
       "permission": {
         "sequential-thinking_*": "allow",
       },
-      "prompt": "## Build Agent — Workflow Overview\nDetailed rules are in .opencode/rules/build-workflow.mdc and build-meta-learning.mdc.\n\nKey points:\n- searxng_web_search FIRST, websearch_tavily_search 2nd, webfetch fallback\n- Delegate to explore/scout/plan/worker/review (max depth 3)\n- gh CLI over GitHub MCP for GitHub operations\n- Run lsp_diagnostics + build check before completing tasks\n- Load domain skills via skill() for specific tasks",
+      "prompt": "## Build Agent\n\nALWAYS load the dev-defaults skill FIRST: skill(name='dev-defaults'). Strategic thinking patterns (RESEARCH -> CHALLENGE -> EXTRAPOLATE -> DECIDE) on EVERY interaction.\n\nDetailed rules are in .opencode/rules/build-workflow.mdc and build-meta-learning.mdc.\n\nKey points:\n- Load dev-defaults skill before anything else\n- searxng_web_search FIRST, websearch_tavily_search 2nd, webfetch fallback\n- Delegate to explore/scout/plan/worker/review (max depth 3)\n- gh CLI over GitHub MCP for GitHub operations\n- Run lsp_diagnostics + build check before completing tasks\n- Load domain skills via skill() for specific tasks",
       "steps": 40,
     },
     "general": {
@@ -444,7 +444,6 @@
     },
   },
   "plugin": [
-    "@tarquinen/opencode-dcp@3.1.15",
     "oh-my-openagent@4.19.4",
     "opencode-command-inject@1.3.0",
   ],
@@ -458,7 +457,7 @@
     },
   },
   "shell": "bash",
-  "small_model": "opencode/deepseek-v4-flash-free",
+  "small_model": "opencode-go/mimo-v2-omni",
   "subagent_depth": 3,
   "tool_output": {
     "max_bytes": 25600,

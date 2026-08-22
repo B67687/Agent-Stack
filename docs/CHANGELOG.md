@@ -1,3 +1,25 @@
+## 2026-08-23 — v1.5 (Ox Alpha Retired, MiMo Restored)
+
+### Model Routing
+
+- **Ox Alpha removed from all routing**: primary model field AND fallback chains across 21 agents/categories. modelConcurrency dropped from 10 → 5
+- **MiMo-V2.5 restored as primary workhorse**: fast TTFT, ~$0.0004/req, 30,100 req/5h quota, zero data-training
+- **Fallback chains updated**: mimo-v2.5 → gpt-5.6-luna → deepseek-v4-flash-free → minimax-m3
+- **Regression test allowlist updated**: added mimo-v2.5 and glm-5.2 to fallback allowlist (34/34 passing)
+
+### Why
+
+- Ox Alpha consistently slow across all agents — always-on CoT (reasoning tokens before output) added ~3-5s latency per response
+- MiMo-V2.5 is faster, paid but cheap (~$0.0004/req), and does NOT train on user data
+- Free-tier models (deepseek-v4-flash-free, mimo-v2.5-free) remain as fallback tail
+
+### Files Changed
+
+- `~/.omo/omo.jsonc` — ox-alpha removed from all model fields and fallback chains
+- `.opencode/rules/model-routing.mdc` — full rewrite to reflect current routing
+- `scripts/regression-test.sh` — fallback allowlist updated (added mimo-v2.5, glm-5.2)
+- `docs/CHANGELOG.md` — this entry
+
 ## 2026-08-15 — v1.11
 
 ### Sandbox Layer 2: Host-Side Egress Proxy (allowlist network containment)
