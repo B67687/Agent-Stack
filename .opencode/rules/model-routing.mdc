@@ -4,7 +4,7 @@ globs: ["**/oh-my-openagent.jsonc", "**/opencode.jsonc", "**/.omo/plans/**", "**
 alwaysApply: false
 ---
 
-# Model Routing (opencode-go landscape, ratified 2026-08-01, re-routed 2026-08-02, re-paired 2026-08-20, Ox Alpha retired 2026-08-23)
+# Model Routing (opencode-go landscape, ratified 2026-08-01, Hy3 primary 2026-08-25)
 
 ## Canonical relationship
 
@@ -18,67 +18,91 @@ executes); this file records intent so future edits stay justified.
 
 | Agent | Model | Fallback |
 |---|---|---|
-| sisyphus / architect / build / worker | `opencode-go/mimo-v2.5` | `gpt-5.6-luna → deepseek-v4-flash-free → minimax-m3` |
-| oracle / prometheus / metis / momus / ultrabrain | `opencode-go/mimo-v2.5` | `gpt-5.6-luna → deepseek-v4-flash-free → glm-5.2 → minimax-m3` |
-| explore / scout / librarian / multimodal-looker / sisyphus-junior / writing / git / quick | `opencode-go/mimo-v2.5` | `gpt-5.6-luna → deepseek-v4-flash-free → minimax-m3 → mimo-v2.5-free` |
-| test-writer / review | `opencode-go/gpt-5.6-luna` | `deepseek-v4-flash → minimax-m3 → deepseek-v4-flash-free → mimo-v2.5-free` |
+| sisyphus / architect / build / worker | `opencode-go/hy3` | `gpt-5.6-luna → mimo-v2.5-free` |
+| oracle / prometheus / metis / momus / ultrabrain | `opencode-go/hy3` | `gpt-5.6-luna → glm-5.2 → mimo-v2.5-free` |
+| explore / scout / librarian / multimodal-looker / sisyphus-junior / writing / git / quick | `opencode-go/hy3` | `gpt-5.6-luna → mimo-v2.5-free` |
+| test-writer / review | `opencode-go/gpt-5.6-luna` | `deepseek-v4-flash → minimax-m3 → mimo-v2.5-free` |
 | hephaestus / atlas | `opencode-go/deepseek-v4-flash` | (existing; both disabled) |
-| visual-engineering | `opencode-go/minimax-m3` | `deepseek-v4-flash → gpt-5.6-luna → deepseek-v4-flash-free → mimo-v2.5-free` |
+| visual-engineering | `opencode-go/minimax-m3` | `deepseek-v4-flash → gpt-5.6-luna → mimo-v2.5-free` |
 | general | category `unspecified-low` | (inherits) |
 
 ## Category table
 
 | Category | Model |
 |---|---|
-| ultrabrain | `opencode-go/mimo-v2.5` |
-| unspecified-high / artistry / deep | `opencode-go/mimo-v2.5` |
+| ultrabrain | `opencode-go/hy3` |
+| unspecified-high / artistry / deep | `opencode-go/hy3` |
 | visual-engineering | `opencode-go/minimax-m3` |
-| writing / git / quick / unspecified-low | `opencode-go/mimo-v2.5` |
+| writing / git / quick / unspecified-low | `opencode-go/hy3` |
 
 ## Model rationale
 
-### MiMo-V2.5 as primary workhorse (restored 2026-08-23)
+### Hy3 as primary workhorse (routed 2026-08-25)
 
-- **Cost**: ~$0.0004/request average on Go plan (30,100 req/5h quota)
-- **Speed**: fast time-to-first-token vs ox-alpha-free (which had always-on CoT adding ~3-5s latency per response)
-- **Zero data-training**: does NOT train on user data (unlike Muse Spark Contributor, Big Pickle, Hy3-free, Nemotron-free)
-- **Weakness**: Akita 67/B (vs Flash 78/B, GLM-5.2 92/A.1) — the OMO harness compensates. Independently verified weaker than Flash on raw benchmarks but the speed + cost + zero-training tradeoff is favorable for volume work
-- **Fallback chain**: cheap→expensive gradient; mimo-v2.5 ($0.0004) → gpt-5.6-luna ($0.0015) → deepseek-v4-flash-free ($0) → minimax-m3 ($0.0037)
+- **Cost**: $0.14 input / $0.55 output per 1M tokens (~$0.04/task on AA benchmarks)
+- **Intelligence**: AA Intelligence Index **42** (#15/107 open weights, above median 27)
+- **Speed**: 80 t/s output, 2.90s TTFT — decent for a reasoning model
+- **Architecture**: 299B total / 21B active (MoE, 192 experts top-8), Apache 2.0
+- **Context**: 256k tokens
+- **Why Hy3 over MiMo-V2.5**: MiMo has no AA benchmark scores (not in top 29), Hy3 scores 42. Hy3 is 4× more intelligent for ~4× the cost — the best intelligence-per-dollar outside free models.
+- **Why Hy3 over DeepSeek V4 Flash**: Flash scores 52 (10 points higher) but costs 3× more ($0.11 vs $0.04/task). For volume agents, the 10-point gap doesn't justify 3× the cost.
+- **Fallback chain**: hy3 ($0.04) → gpt-5.6-luna ($0.05) → mimo-v2.5-free ($0, trains)
+- **Data training**: paid tier = zero-retention. Free variant (hy3-free) trains on data.
 
-### Ox Alpha retired from routing (2026-08-23)
+### DeepSeek V4 Flash — quality fallback only
 
-- **Reason**: consistently slow time-to-first-token across all agents. Always-on CoT (reasoning tokens before output) added significant latency (~3-5s overhead) that made the agent feel sluggish vs mimo-v2.5
-- **Status**: removed from model field and fallback chains entirely. modelConcurrency dropped to 5 (was 10)
-- **If free window ends or model is deprecated**: fallback auto-catches via mimo-v2.5 primary
+- AA Intelligence Index **52** (#5/107), fastest model (125 t/s, 1.05s TTFT)
+- $0.44/$1.32 per 1M tokens — expensive for volume use but justified for quality-critical agents
+- Peak/off-peak pricing: peak hours (01:00-04:00, 06:00-10:00 UTC Mon-Fri) = 2× prices
+- 7,600 req/5h at $30/mo budget cap
+- Used only on oracle/prometheus when GLM-5.2 quota is exhausted, and on test-writer/review
+- **No free variant exists** — `deepseek-v4-flash-free` does not exist on the platform
 
-### GLM-5.2 → quality fallback only
+### GLM-5.2 — quality fallback only
 
-- Akita 92/A.1 (independently verified), BenchLM coding 88th pct, strong agentic
-- Best quality-per-quota at 880 req/5h, $60/mo
+- AA Intelligence Index **53** (#4/107), highest intelligence but expensive
+- $1.40/$4.40 per 1M tokens, 880 req/5h
 - Sits as fallback on reasoning/planning agents (oracle, prometheus, metis, momus, ultrabrain)
-- Not primary — expensive and lower quota than mimo-v2.5
+- Not primary — 35× more expensive per task than Hy3
 
-### GPT 5.6 Luna on code-gen
+### GPT 5.6 Luna — budget fallback
 
-- Budget frontier (SWE-Pro 62.7, coding rank #6, $0.20/$1.20 — 1/12 of Max's input price, 2,050 req/5h)
-- **Luna is served via OpenAI `/responses`, not chat/completions** — works only through opencode's BUILT-IN opencode-go provider
-- Also the top-level `opencode.jsonc` default model
-- review/test-writer stay on Luna exclusively
+- AA Intelligence Index **52** (tied with Flash), $0.20/$1.20 per 1M tokens
+- At max effort: 150s TTFT (always-on CoT, too slow for agents)
+- At low effort: 1.61s TTFT, 132 t/s, Intelligence 34 — cheap and fast but weaker
+- **Luna is served via OpenAI `/responses`, not chat/completions** — works only through opencode's BUILT-IN provider
+- Used as second fallback across all chains
 
-### MiniMax M3 only on visual-engineering
+### MiniMax M3 — multimodal only
 
-- The one slot that genuinely needs image/video input
-- Agentic numbers are vendor-only; BenchLM-independent ranks it weak (#96/128 agentic, 40.5/100)
-- flash 0731 dominates (TB2.1 82.7 vs 66.0) at 2.7× less — M3 kept only for multimodal input
+- AA Intelligence Index **45**, 124 t/s, 1.31s TTFT
+- $0.30/$1.20 per 1M tokens, 3,200 req/5h
+- Only model supporting image + video input — kept for visual-engineering slot
 
-### DeepSeek V4 Flash effectively retired from primary routing
+### MiMo-V2.5 — free fallback only
 
-- `opencode-go/deepseek-v4-flash` appears ONLY on the two DISABLED agents (atlas, hephaestus)
-- Free-tier `deepseek-v4-flash-free` / `mimo-v2.5-free` remain as fallback tail — no primary routing
+- No AA benchmark scores (not in top 29 despite being #3 on OpenRouter by usage)
+- Paid tier: $0.14/$0.28, 30,100 req/5h — cheap but too weak for primary use
+- Free tier: trains on user data, used only as last-resort fallback
+- Previously primary (Aug 20-25), demoted after landscape review confirmed weak benchmarks
+
+### Muse Spark 1.2 Contributor — NOT routed
+
+- AA Intelligence Index **57** (#17/187), highest intelligence on the platform
+- $0.10/$0.20 on OpenCode Go (10× cheaper than official Meta API $1.25/$4.25)
+- **Meta trains on prompts and completions** — the discount is paid with user data
+- Sustainable pricing unclear (promotional rate vs official 10× gap)
+- User decision: not routed due to data privacy concerns (GitHub identity in repo data)
+
+### Ox Alpha — retired from routing
+
+- Was free with unlimited quota, always-on CoT made it too slow (~3-5s latency overhead)
+- Removed from model fields and fallback chains entirely
+- If free window ends or model deprecated: fallback auto-catches via Hy3 primary
 
 ### fallback_models allowlist (2026-08-02/03, claude-opus-5 incident)
 
-Every agent/category carries a allowlist suppressing OMO's HARDCODED AGENT_MODEL_REQUIREMENTS chain (sisyphus chain[0] was claude-opus-5/anthropic — fired on transient errors despite disabled_providers; see docs/INCIDENTS.md). Pattern: `fallback_models[0]` = primary model, tail = gradient from cheap to expensive.
+Every agent/category carries an allowlist suppressing OMO's HARDCODED AGENT_MODEL_REQUIREMENTS chain (sisyphus chain[0] was claude-opus-5/anthropic — fired on transient errors despite disabled_providers; see docs/INCIDENTS.md). Pattern: `fallback_models[0]` = primary model, tail = gradient from cheap to expensive.
 
 ### Budget layering
 
@@ -89,12 +113,12 @@ Three enforcement layers (deliberate, not a conflict): soft routing target ~$15/
 1. **NEVER add a custom `opencode-go` provider entry with `@ai-sdk/openai-compatible`** — it breaks gpt-5.6-luna (responses-only transport). The built-in opencode-go provider handles per-model transport.
 2. No Kimi K3 ($3/$15), no Grok 4.5 ($2/$6) — spend stays below that tier.
 3. No Qwen3.7 Max ($2.50/$7.50) — hallucination-prone (Akita v2 51/C); concurrency 0.
-4. No Muse Spark 1.2 Contributor as PRIMARY unless you accept data-training — it trains on prompts/completions (the discount). Reserve for fallback only.
+4. No Muse Spark 1.2 Contributor as PRIMARY — Meta trains on prompts/completions. GitHub identity risk. Pricing sustainability unclear (10× below official).
 5. Routing scope only — no permission/hook/agent-definition/provider changes.
 6. No non-opencode-go / non-deepseek providers.
 7. No `opencode-go/deepseek-v4-pro` — still the Apr preview; not worth the spend.
-8. **Hy3: SKIP** (input $0.14 = MiMo but output $0.58 2×, quota 4,300/5h) — no edge.
-9. **Ox Alpha: SKIP** — too slow (always-on CoT latency). Removed from routing entirely.
+8. **Ox Alpha: SKIP** — too slow (always-on CoT latency). Removed from routing entirely.
+9. **MiMo-V2.5 paid: SKIP** — no AA benchmark scores, too weak for primary use. Free tier only as last-resort fallback.
 
 ## Refresh trigger
 

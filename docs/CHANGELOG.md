@@ -1,3 +1,21 @@
+## 2026-08-25 — v1.6 (Hy3 Primary, MiMo Demoted)
+
+### Model Routing
+
+- **Hy3 (Tencent) restored as primary**: AA Intelligence Index 42, $0.04/task, 80 t/s, 299B/21B MoE, Apache 2.0
+- **MiMo-V2.5 demoted to free fallback only**: no AA benchmark scores (not in top 29), too weak for primary use
+- **DeepSeek V4 Flash confirmed NOT free**: no `deepseek-v4-flash-free` variant exists; broken fallback refs fixed → `mimo-v2.5-free`
+- **Muse Spark Contributor evaluated but NOT routed**: Intelligence 57 (highest on platform), $0.01/task, but Meta trains on data and GitHub identity risk
+- **Ox Alpha removed entirely**: slow CoT latency, removed from model fields and fallback chains
+- **Regression test allowlist updated**: added hy3, fixed broken deepseek-v4-flash-free refs
+
+### Why Hy3
+
+- Best intelligence-per-dollar: Intelligence 42 at $0.04/task (3× cheaper than Flash, 4× more intelligent than MiMo)
+- Open weights (Apache 2.0), 256k context, reasoning model
+- Paid tier = zero-retention (no data training)
+- Tencent promotional pricing — may rise; fallback chain hedges against this
+
 ## 2026-08-23 — v1.5 (Ox Alpha Retired, MiMo Restored)
 
 ### Model Routing
@@ -49,6 +67,7 @@ The other 9 were **deliberately skipped** (not forgotten): `hyperplan` (already 
 Final toolbox: **11 entries** in `~/.config/opencode/skills/` (dev-protocol, github-workflow, git-master, meta-learner, rust-workflow, shipcheck, solve + the 4 symlinks) + **2** in `~/.cache/opencode/skills/` (security-research, security-review).
 
 ### hyper-sisyphus Removed (experiment discontinued)
+
 The `hyper-sisyphus` self-improvement-loop skill (Gödel-agent inspect → propose → sandbox-evaluate → merge/archive; prototype at `prototype/hyper_proto.py`) was an experiment that was never continued and whose stability is unproven — **removed from the toolbox 2026-08-06 by user decision**. `/improve`, `/ledger-verify`, `/archive-status` are no longer available. The `prototype/` reference implementation remains in the agentic-workflows repo (untouched).
 
 ---

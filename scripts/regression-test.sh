@@ -94,7 +94,7 @@ FB_CHECK=$(python3 -c "
 import json5
 omo = json5.loads(open('$HOME/.omo/omo.jsonc').read())
 omo = omo['[opencode]']
-allowed = {'opencode-go/deepseek-v4-flash', 'opencode-go/gpt-5.6-luna', 'opencode-go/minimax-m3', 'opencode-go/mimo-v2.5', 'opencode-go/glm-5.2', 'opencode/deepseek-v4-flash-free', 'opencode/mimo-v2.5-free'}
+allowed = {'opencode-go/deepseek-v4-flash', 'opencode-go/gpt-5.6-luna', 'opencode-go/minimax-m3', 'opencode-go/hy3', 'opencode-go/mimo-v2.5', 'opencode-go/glm-5.2', 'opencode/deepseek-v4-flash-free', 'opencode/mimo-v2.5-free'}
 forbidden_providers = ('anthropic', 'openai', 'google', 'xai')
 bad = []
 for scope_name in ['agents', 'categories']:
@@ -151,7 +151,7 @@ for path in ['$HOME/.config/opencode/opencode.jsonc', '$HOME/.omo/omo.jsonc']:
     omo = json5.loads(open(path).read())
     c = open(path).read()
     for m in re.findall(r'\"model\"\s*:\s*\"([a-zA-Z0-9_./-]+)\"', c):
-        if 'deepseek' not in m and 'mimo' not in m and 'minimax' not in m and 'qwen' not in m and 'glm' not in m and 'kimi' not in m and 'grok' not in m and 'gpt' not in m:
+        if 'deepseek' not in m and 'mimo' not in m and 'minimax' not in m and 'qwen' not in m and 'glm' not in m and 'kimi' not in m and 'grok' not in m and 'gpt' not in m and 'hy3' not in m:
             bad.append(m)
 if bad:
     print(', '.join(set(bad)))

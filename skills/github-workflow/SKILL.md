@@ -1,6 +1,6 @@
 ---
 name: github-workflow
-description: "MUST USE for any repo with the private-scratchpad / public-release split (a `*-Dev` private origin + a `public` remote). Covers the full loop: Dev-first confirmation, work in the local↔private scratch loop, GitHub CI on private, thematic squash of the release delta into signed conventional commits on explicit user go, propagate local→private→public, append-only release. Use before any public push, any 'squash', or any release. Do not use for ordinary single-repo commits (use git-master)."
+description: "MUST USE for any repo with the private-dev / public-mirror split (a `*-Dev` private origin + a `public` remote). The public repo is a clean mirror — append-only, squashed, for GitHub visitors. Covers the full loop: Dev-first confirmation, work in the local↔private scratch loop, GitHub CI (on both repos), thematic squash of the release delta into signed conventional commits on explicit user go, propagate local→private→public. Use before any public push, any 'squash', or any release. Do not use for ordinary single-repo commits (use git-master)."
 ---
 
 # GitHub Workflow (Local ↔ Private Scratch → Thematic Squash → Public)
@@ -24,9 +24,17 @@ git log --oneline -5
 
 ## The Work Model
 
-Work happens in the **local ↔ private** loop. The private repo is a SCRATCHPAD — commits land there as you work; working cycles accumulate between releases. Nothing about the scratch is precious or kept for its own sake.
+The mental model: **Dev repo = source of truth (private). Public repo = clean mirror. Local-adjacent files stay on disk.**
 
-**GitHub CI runs on the PRIVATE repo**, validating scratch work as it happens. If CI is unavailable (e.g. Actions minutes exhausted), run the repo's local check instead (e.g. `./scripts/check.sh`).
+- **Dev repo** (`*-Dev`): Private. All work happens here. CI runs here. Cloudflare Pages (or similar) deploys from here. Commits accumulate freely — messy history is fine.
+- **Public repo** (`*`): A clean, squashed mirror. Only receives commits on explicit user go. GitHub visitors see this one. CI runs here too (public repos get unlimited free Actions minutes). No hosting.
+- **Local folder** (`*-Local`): A plain on-disk directory (NOT a git repo) holding local-only docs that never reach dev or public: `TECH_DEBT_AUDIT.md`, `EXPLAINER.md`, `HANDOVER*.md`, `USER-PROFILE.md`, `MAINTENANCE-LEDGER.md`, audit reports, planning notes. These are machine-local private artifacts — intentionally never committed or pushed.
+
+Work happens in the **local ↔ private** loop. The private repo is a scratchpad — commits land there as you work; working cycles accumulate between releases. Nothing about the scratch is precious or kept for its own sake.
+
+**GitHub CI runs on BOTH repos** — the private repo validates scratch work as it happens; the public repo provides unlimited free Actions minutes and guards the release. If CI is unavailable (e.g. Actions minutes exhausted on private), the public repo's CI is a free fallback.
+
+**Cloudflare Pages (or any hosting) connects to the PRIVATE repo** — it deploys on every push. The public repo is not involved in hosting.
 
 Release happens ONLY on an explicit user decision that the scratch is good enough. At release: thematically squash the delta since the last release tip, propagate local → private → public. After release, private and public mirror each other — identical content, identical squashed history. No raw history is retained anywhere.
 
@@ -58,8 +66,8 @@ Release happens ONLY on an explicit user decision that the scratch is good enoug
 - **Value judgement**: when to make an appended thematic commit is a session-time decision between the user and the agent — never schedule or force it proactively.
 - Public push requires EXPLICIT user go. Never assume; never push raw WIP/history to public.
 - Sign every commit (`-S`); verify `%G?` = `G` after any history rewrite.
-- Never force-push (`git-safe-push` blocks it by design). CI runs on the PRIVATE repo — do not rely on public CI.
-- `.omo/` and other private-only paths never enter the tracked tree.
+- Never force-push (`git-safe-push` blocks it by design). CI runs on BOTH repos — public CI is a free unlimited-minutes fallback, do not rely solely on it.
+- `.omo/` and other private-only paths never enter the tracked tree. Local-only docs (audits, handovers, profiles) live in the sibling `*-Local` folder, never in dev or public.
 
 ## One-time reset (delete + re-upload) — NOT routine
 
