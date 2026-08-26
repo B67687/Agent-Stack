@@ -33,6 +33,11 @@ Consolidated 2026-08-26: low-sensitivity tasks (research, exploration, writing) 
 | multimodal-looker  | muse-spark               | 5-entry allowlist | Media analysis                                |
 | **deep** (cat)     | `opencode-go/muse-spark` | 5-entry allowlist | Autonomous research — high volume exploration |
 | **artistry** (cat) | `opencode-go/muse-spark` | 5-entry allowlist | Creative design — frequent iterations         |
+| writing            | muse-spark               | 5-entry allowlist | Documentation, prose                          |
+| git                | muse-spark               | 5-entry allowlist | Git operations                                |
+| quick              | muse-spark               | 5-entry allowlist | Fast trivial tasks                            |
+| unspecified-low    | muse-spark               | 5-entry allowlist | Simple tasks, no sensitive context            |
+| **general** (cat)  | `opencode-go/muse-spark` | 5-entry allowlist | General-purpose, high volume                  |
 
 ## Go budget-frontier — gpt-5.6-luna
 
@@ -51,16 +56,15 @@ Consolidated 2026-08-26: low-sensitivity tasks (research, exploration, writing) 
 
 Simple, high-volume agents that don't need reasoning models.
 
-| Model                     | Agents                                                      | Rationale                                                                                                                                             |
-| ------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `opencode/mimo-v2.5-free` | explore, quick, unspecified-low, scout, general             | Lightweight discovery, simple edits, lookups                                                                                                          |
-| `opencode/mimo-v2.5-free` | sisyphus-junior, librarian, multimodal-looker, writing, git | General-purpose free tier, good quality at zero cost (2026-08-25: deepseek-v4-flash-free does not exist on platform — consolidated to mimo-v2.5-free) |
+| Model                     | Agents          | Rationale                                            |
+| ------------------------- | --------------- | ---------------------------------------------------- |
+| `opencode/mimo-v2.5-free` | sisyphus-junior | General-purpose free tier, good quality at zero cost |
 
 ## Notes
 
-- Model concurrency limits (2026-08-02; updated 2026-08-26): mimo-v2.5=10, muse-spark=15, deepseek-v4-flash=2, gpt-5.6-luna=2, minimax-m3=2, glm-5.2=2, mimo-v2.5-free=10, qwen3.7-max=0 (budget-blocked)
+- Model concurrency limits (2026-08-02; updated 2026-08-26): mimo-v2.5=10, muse-spark=15, gpt-5.6-luna=2, minimax-m3=2, glm-5.2=2, mimo-v2.5-free=10, qwen3.7-max=0 (budget-blocked)
 - `disabled_providers: {openai, anthropic, google, xai}` prevents fallback to premium-only models
-- NOT routed (2026-08-02; updated 2026-08-26): deepseek-v4-pro (Apr preview), hy3 (too slow — dethroned), kimi-k2.7-code, kimi-k3, grok-4.5, ox-alpha-free
-- fallback_models allowlist (2026-08-03; updated 2026-08-26): every agent/category carries the same 7-model allowlist (opencode-go/mimo-v2.5, opencode-go/muse-spark-1.2-contributor, opencode-go/gpt-5.6-luna, opencode-go/minimax-m3, opencode-go/deepseek-v4-flash, opencode-go/glm-5.2, opencode/mimo-v2.5-free) — suppresses OMO's hardcoded AGENT_MODEL_REQUIREMENTS chain (was claude-opus-5 on transient errors despite disabled_providers; Test 5 is the permanent guard)
+- NOT routed (2026-08-02; updated 2026-08-26): hy3 (too slow — dethroned), kimi-k2.7-code, kimi-k3, grok-4.5, ox-alpha-free
+- fallback_models allowlist (2026-08-03; updated 2026-08-26): every agent/category carries the same 6-model allowlist (opencode-go/mimo-v2.5, opencode-go/muse-spark-1.2-contributor, opencode-go/gpt-5.6-luna, opencode-go/minimax-m3, opencode-go/glm-5.2, opencode/mimo-v2.5-free) — suppresses OMO's hardcoded AGENT_MODEL_REQUIREMENTS chain (was claude-opus-5 on transient errors despite disabled_providers; Test 5 is the permanent guard)
 - Agent/category models use the `model` key (single string) — validate against installed schema via `scripts/config-schema-check.mjs`
 - 11 auto-rules `.mdc` files augment agent behavior

@@ -42,3 +42,14 @@ The 2026-08-02 budget redesign downgraded the frontier tier from `opencode-go/qw
 **Further superseded (2026-08-02 evening):** The qwen3.7-plus frontier detour was itself replaced the same day — the entire paid stack now routes to `opencode-go/deepseek-v4-flash` (official 0731 build). DeepSeek re-post-trained flash on 2026-07-31 with agentic benchmarks "far exceeding V4-Pro-Preview" (TB2.1 82.7 vs 61.8) while leaving the V4-Pro API on the Apr preview; flash wins on strength, price ($0.14/$0.28 vs $0.435/$0.87), and usage pool ($60 vs $15/mo). qwen3.7-plus survives only as a concurrency-3 fallback reserve; minimax-m3 stays only on visual-engineering (image/video); gpt-5.6-luna stays on review/test-writer. Live routing table: `.opencode/rules/model-routing.mdc`.
 
 **Further superseded (2026-08-25):** Hy3 (Tencent) replaced DeepSeek V4 Flash as primary workhorse. AA Intelligence Index 42 at $0.04/task — 3× cheaper than Flash (52 at $0.11). MiMo-V2.5 demoted to free fallback only (no AA benchmark scores). Ox Alpha removed entirely (slow CoT latency). Fallback chains updated: hy3 → gpt-5.6-luna → mimo-v2.5-free. Live routing table: `.opencode/rules/model-routing.mdc`.
+
+### Supersession: v1.7 — Hybrid Privacy Routing (MiMo-V2.5 + Muse Spark)
+
+- Date: 2026-08-26
+- Replaced Hy3 as primary with hybrid routing
+- Sensitive agents: opencode-go/mimo-v2.5 (zero-retention, no training)
+- Low-sensitivity agents: opencode-go/muse-spark-1.2-contributor (Intelligence 57, Meta trains on free tier, 0-day retention on paid)
+- Quality: opencode-go/gpt-5.6-luna (review, test-writer)
+- Visual: opencode-go/minimax-m3
+
+**Supersession (2026-08-26):** v1.7 hybrid privacy routing replaces Hy3 as the primary decision. Sensitive agents (sisyphus, architect, build, worker, oracle, prometheus, metis, momus, ultrabrain, unspecified-high) route to `opencode-go/mimo-v2.5` for zero-retention privacy guarantees. Low-sensitivity agents (explore, librarian, scout, multimodal-looker, writing, git, quick, unspecified-low, artistry, deep) route to `opencode-go/muse-spark-1.2-contributor` (Intelligence 57, Meta trains on free tier but 0-day retention on paid). Quality tier (review, test-writer) uses `opencode-go/gpt-5.6-luna`. Visual (visual-engineering) uses `opencode-go/minimax-m3`. Live routing table: `.opencode/rules/model-routing.mdc`.

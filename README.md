@@ -15,8 +15,8 @@ this way.
 - **Harness**: OpenCode CLI + Oh-My-OpenAgent plugin (pinned `oh-my-openagent@4.19.4`)
 - **Plugins** (pinned): `@tarquinen/opencode-dcp@3.1.14`, `oh-my-openagent@4.19.4`, `opencode-command-inject@1.3.0`
 - **Subscription**: OpenCode Go ($10/mo) + Zen free tier
-- **Models**: opencode-go families routed by quality tier × task type (see [docs/AGENTS.md](docs/AGENTS.md) and `model-routing` rule)
-- **Agents**: ~15 agent definitions, 9 categories, quality-tiered routing
+- **Models**: opencode-go hybrid routing split by privacy sensitivity (see [docs/AGENTS.md](docs/AGENTS.md) and `model-routing` rule)
+- **Agents**: ~19 agent definitions, 9 categories, privacy-sensitive hybrid routing
 - **Compaction**: 3 layers (OpenCode auto-prune, OMO DCP hooks, DCP plugin nudges)
 - **Auto-Rules**: 11 `.mdc` rule files in `.opencode/rules/` — injected live into agent context (via `~/.opencode/rules` symlink, scanned by the OMO rules-injector)
 - **LSP**: basedpyright, css, html, json, markdown, rust-analyzer, typescript (bare PATH-resolvable commands — no machine-specific paths in config)
@@ -27,12 +27,12 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full rationale and [doc
 
 ## Model routing (per 5-hour window)
 
-| Tier               | Rate/5hr | Models                                         | Primary agents                                                                                                                         |
-| ------------------ | -------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Go workhorse       | ~31k     | mimo-v2.5 (fallback gpt-5.6-luna / minimax-m3) | oracle, architect, prometheus, metis, momus, sisyphus, worker, hephaestus, atlas, build + ultrabrain, unspecified-high, artistry, deep |
-| Go budget-frontier | 2,050    | gpt-5.6-luna (fallback minimax-m3)             | test-writer, review                                                                                                                    |
-| Go visual          | 3k-4k    | minimax-m3                                     | visual-engineering (cat)                                                                                                               |
-| Zen free           | free     | mimo-v2.5-free                                 | explore, quick, sisyphus-junior, librarian, scout, writing, git, general                                                               |
+| Sensitivity Tier      | Models                                 | Primary agents                                                                                     |
+| --------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Sensitive (privacy)   | opencode-go/mimo-v2.5                  | sisyphus, architect, build, worker, oracle, prometheus, metis, momus, ultrabrain, unspecified-high |
+| Low-sensitivity       | opencode-go/muse-spark-1.2-contributor | explore, librarian, scout, multimodal-looker, writing, git, quick, unspecified-low, artistry, deep |
+| Quality (review/test) | opencode-go/gpt-5.6-luna               | review, test-writer                                                                                |
+| Visual (UI/UX)        | opencode-go/minimax-m3                 | visual-engineering                                                                                 |
 
 Full routing rationale (quality scores, pricing, limits, NOT-list guardrails) lives in
 `.opencode/rules/model-routing.mdc` (live policy; the older [research/2026-07-18-landscape-refresh.md](research/2026-07-18-landscape-refresh.md) is superseded — see its banner).
@@ -127,22 +127,23 @@ the config stack with how-to-work rules.
 Full detail: [docs/INCIDENTS.md](docs/INCIDENTS.md). Current guardrail state:
 `disabled_hooks = ["todo-continuation-enforcer", "keyword-detector"]` (2026-08-04 — goal + compaction-context-injector re-armed; goal stays inert via `goal.enabled: false`)
 
-| Date     | Incident                                                   | Fix                                                    |
-| -------- | ---------------------------------------------------------- | ------------------------------------------------------ |
-| Jun 2026 | Playwright 502 on Ubuntu 26.04                             | patched version check + headless                       |
-| Jul 2026 | Go platform #35149 routing break                           | auth login + free-tier fallback                        |
-| Jul 2026 | Sisyphus attribution injection                             | git hook + config override + dist patch                |
-| Jul 2026 | DB bloat (WAL 339MB)                                       | WAL checkpoint + weekly VACUUM cron                    |
-| Jul 2026 | Goal handler bug (v4.19.0) — **recurred Aug (Incident 9)** | config-level fix: goal hook disabled                   |
-| Jul 2026 | Agent registration failure / dist corruption               | dist patches; rollback → v4.19.4                       |
-| Jul 2026 | Continuation injection loop                                | 4-entry disabled_hooks (reduced to 2-entry 2026-08-04) |
+| Date     | Incident                                                          | Fix                                                               |
+| -------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Jun 2026 | Playwright 502 on Ubuntu 26.04                                    | patched version check + headless                                  |
+| Jul 2026 | Go platform #35149 routing break                                  | auth login + free-tier fallback                                   |
+| Jul 2026 | Sisyphus attribution injection                                    | git hook + config override + dist patch                           |
+| Jul 2026 | DB bloat (WAL 339MB)                                              | WAL checkpoint + weekly VACUUM cron                               |
+| Jul 2026 | Goal handler bug (v4.19.0) — **recurred Aug (Incident 9)**        | config-level fix: goal hook disabled                              |
+| Jul 2026 | Agent registration failure / dist corruption                      | dist patches; rollback → v4.19.4                                  |
+| Jul 2026 | Continuation injection loop                                       | 4-entry disabled_hooks (reduced to 2-entry 2026-08-04)            |
+| Aug 2026 | v1.7 privacy routing migration + Hy3 removal + OMO sidebar enable | hybrid split config + deprecated Hy3 references + sidebar enabled |
 
 ## Versions
 
 | Package         | Current Version | Source Repo                                                                     | Last Checked |
 | --------------- | --------------- | ------------------------------------------------------------------------------- | ------------ |
 | oh-my-openagent | v4.19.4         | [code-yeongyu/oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) | 2026-08-02   |
-| OpenCode        | v1.18.12        | [anomalyco/opencode](https://github.com/anomalyco/opencode)                     | 2026-08-04   |
+| OpenCode        | v1.18.13        | [anomalyco/opencode](https://github.com/anomalyco/opencode)                     | 2026-08-26   |
 
 Release tags from GitHub — when upstream publishes a new tag, the update tracker creates an issue.
 

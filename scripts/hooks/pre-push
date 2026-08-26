@@ -54,10 +54,10 @@ if command -v grep >/dev/null 2>&1; then
   grep -q "mimo-v2.5:10"           docs/CONFIG_MAP.md || fail "CONFIG_MAP.md missing mimo-v2.5:10 (doc drift)"
   grep -q "muse-spark-1.2-contributor:15" docs/CONFIG_MAP.md || fail "CONFIG_MAP.md missing muse-spark-1.2-contributor:15 (doc drift)"
   grep -q "mimo-v2.5-free:10"       docs/CONFIG_MAP.md || fail "CONFIG_MAP.md missing mimo-v2.5-free:10 (doc drift)"
-  grep -q "qwen3.7-max:0"            docs/CONFIG_MAP.md || fail "CONFIG_MAP.md missing qwen3.7-max:0 (doc drift)"
+  grep -q "gpt-5.6-luna:2"            docs/CONFIG_MAP.md || fail "CONFIG_MAP.md missing gpt-5.6-luna:2 (doc drift)"
   grep -q "compaction-context-injector" README.md || fail "README.md missing compaction-context-injector (doc drift)"
   grep -q "5.7"                       docs/WORKFLOW.md  || fail "WORKFLOW.md missing WAL check 5.7 (doc drift)"
-  grep -q "deepseek-v4-pro"           docs/AGENTS.md    || fail "AGENTS.md missing deepseek-v4-pro NOT-routed (doc drift)"
+  grep -q "hy3"           docs/AGENTS.md    || fail "AGENTS.md missing hy3 NOT-routed (doc drift)"
   echo "  ✅ docs-sync gate"
 fi
 

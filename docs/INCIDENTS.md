@@ -82,7 +82,7 @@ The bundler (esbuild/tsup) aggressively tree-shook internal dependencies, removi
 
 **Upstream:** Should be reported at code-yeongyu/oh-my-openagent — the v4.19.0 build pipeline has a bundler configuration issue.
 
-**Status:** Fixed by version rollback to v4.18.0. **Resolved 2026-08-02:** v4.19.4 dist verified clean (syntax OK, `collectDisabledSkillAliases` defined, tree-shaking fixed) and installed after dry-run + edge-case simulations — version table lives in README.md (VERSIONS.md does not exist).
+**Status:** Fixed by version rollback to v4.18.0. **Resolved 2026-08-02:** v4.19.4 dist verified clean (syntax OK, `collectDisabledSkillAliases` defined, tree-shaking fixed) and installed after dry-run + edge-case simulations. VERSIONS.md was created on 2026-08-26 to track version history and known issues — this incident is now fully resolved.
 
 ## Incident 6: OMO v4.19.0 Agent Registration (Jul 2026)
 

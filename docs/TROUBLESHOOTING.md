@@ -8,7 +8,7 @@ Quick reference for common OpenCode + OMO issues.
 
 **Problem:** "Insufficient balance" errors.
 **Check:** `opencode models` to verify auth token.
-**Fix:** `opencode auth login` to refresh. Fallback: `opencode --model opencode/mimo-v2.5-free`. (2026-08-25: deepseek-v4-flash-free does not exist; replaced with mimo-v2.5-free)
+**Fix:** `opencode auth login` to refresh. Fallback: `opencode --model opencode/mimo-v2.5-free`.
 
 ### 2. Config Not Loading
 

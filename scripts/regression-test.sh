@@ -94,7 +94,7 @@ FB_CHECK=$(python3 -c "
 import json5
 omo = json5.loads(open('$HOME/.omo/omo.jsonc').read())
 omo = omo['[opencode]']
-allowed = {'opencode-go/deepseek-v4-flash', 'opencode-go/gpt-5.6-luna', 'opencode-go/minimax-m3', 'opencode-go/hy3', 'opencode-go/mimo-v2.5', 'opencode-go/glm-5.2', 'opencode-go/muse-spark-1.2-contributor', 'opencode/deepseek-v4-flash-free', 'opencode/mimo-v2.5-free'}
+allowed = {'opencode-go/deepseek-v4-flash', 'opencode-go/gpt-5.6-luna', 'opencode-go/minimax-m3', 'opencode-go/mimo-v2.5', 'opencode-go/glm-5.2', 'opencode-go/muse-spark-1.2-contributor', 'opencode/mimo-v2.5-free'}
 forbidden_providers = ('anthropic', 'openai', 'google', 'xai')
 bad = []
 for scope_name in ['agents', 'categories']:
@@ -655,15 +655,14 @@ agents = slurp(h + '/.config/opencode/docs/AGENTS.md')
 wf = slurp(h + '/.config/opencode/docs/WORKFLOW.md')
 issues = []
 # modelConcurrency truth (live omo.jsonc)
-if 'deepseek-v4-flash:2' not in cmap: issues.append('CONFIG_MAP modelConcurrency flash:2')
+if 'mimo-v2.5:10' not in cmap: issues.append('CONFIG_MAP modelConcurrency mimo-v2.5:10')
 if 'mimo-v2.5-free:10' not in cmap: issues.append('CONFIG_MAP modelConcurrency mimo-free:10')
-if 'qwen3.7-max:0' not in cmap: issues.append('CONFIG_MAP modelConcurrency qwen3.7-max:0')
 # disabled_hooks 4-entry truth
 if 'compaction-context-injector' not in readme: issues.append('README disabled_hooks 4-entry')
 # health-check 9 checks (WAL 5.7)
 if '5.7' not in wf: issues.append('WORKFLOW health-check 9 checks')
 # NOT-routed list intact in AGENTS.md
-if 'deepseek-v4-pro' not in agents: issues.append('AGENTS NOT-routed list')
+if 'hy3' not in agents: issues.append('AGENTS NOT-routed list')
 if issues:
     print('; '.join(issues))
 else:
