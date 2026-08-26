@@ -2,7 +2,7 @@
 
 **Status:** Accepted  
 **Date:** 2026-07-03  
-**Supersedes:** Initial gap-fill (2026-07-02)  
+**Supersedes:** Initial gap-fill (2026-07-02)
 
 ## Context
 
@@ -14,13 +14,13 @@ Research showed DeepSeek V4 Flash at 79% SWE-bench Verified, $0.024/task — 4.2
 
 Allocate Go-tier budget to agents that directly impact output quality:
 
-| Tier | Model | Used by | Rationale |
-|------|-------|---------|-----------|
-| Go | `opencode-go/deepseek-v4-flash` | Sisyphus, Prometheus, Oracle, Architect, Plan, Hephaestus, Worker, Review, Atlas, Test-Writer | Primary reasoning, planning, code generation, architecture design |
-| Free Flash | `opencode/deepseek-v4-flash-free` | Sisyphus-Junior, Librarian, Metis, Momus, Writing, Git | Subagent tasks, research, simple queries, git ops |
-| Free MiMo | `opencode/mimo-v2.5-free` | Explore, Build, General, Scout, Multimodal-Looker | Discovery, critique, build orchestration, cheap lookups |
+| Tier       | Model                             | Used by                                                                                       | Rationale                                                         |
+| ---------- | --------------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Go         | `opencode-go/deepseek-v4-flash`   | Sisyphus, Prometheus, Oracle, Architect, Plan, Hephaestus, Worker, Review, Atlas, Test-Writer | Primary reasoning, planning, code generation, architecture design |
+| Free Flash | `opencode/deepseek-v4-flash-free` | Sisyphus-Junior, Librarian, Metis, Momus, Writing, Git                                        | Subagent tasks, research, simple queries, git ops                 |
+| Free MiMo  | `opencode/mimo-v2.5-free`         | Explore, Build, General, Scout, Multimodal-Looker                                             | Discovery, critique, build orchestration, cheap lookups           |
 
-*hyper-sisyphus removed (discontinued), nemotron-3-ultra-free removed (replaced by mimo)*
+_hyper-sisyphus removed (discontinued), nemotron-3-ultra-free removed (replaced by mimo)_
 
 ReasoningEffort: "max" on reasoning agents, "high" on builders, "low" on workers/reviewers (sufficient for execution verification).
 
@@ -40,3 +40,5 @@ ReasoningEffort: "max" on reasoning agents, "high" on builders, "low" on workers
 The 2026-08-02 budget redesign downgraded the frontier tier from `opencode-go/qwen3.7-max` to `opencode-go/qwen3.7-plus` for oracle, architect, prometheus, and the ultrabrain category. Pricing: qwen3.7-plus at $0.40/$1.60 per 1M tokens vs qwen3.7-max at $2.50/$7.50 (6.25×/4.7× savings). qwen3.7-max also hit a China-region 403 opt-in gate that made it unavailable without explicit subscription. qwen3.7-max concurrency is now 0 (budget-blocked). The historical tiering rationale (2026-07-03) is preserved below for context; the live routing table is in `.opencode/rules/model-routing.mdc`.
 
 **Further superseded (2026-08-02 evening):** The qwen3.7-plus frontier detour was itself replaced the same day — the entire paid stack now routes to `opencode-go/deepseek-v4-flash` (official 0731 build). DeepSeek re-post-trained flash on 2026-07-31 with agentic benchmarks "far exceeding V4-Pro-Preview" (TB2.1 82.7 vs 61.8) while leaving the V4-Pro API on the Apr preview; flash wins on strength, price ($0.14/$0.28 vs $0.435/$0.87), and usage pool ($60 vs $15/mo). qwen3.7-plus survives only as a concurrency-3 fallback reserve; minimax-m3 stays only on visual-engineering (image/video); gpt-5.6-luna stays on review/test-writer. Live routing table: `.opencode/rules/model-routing.mdc`.
+
+**Further superseded (2026-08-25):** Hy3 (Tencent) replaced DeepSeek V4 Flash as primary workhorse. AA Intelligence Index 42 at $0.04/task — 3× cheaper than Flash (52 at $0.11). MiMo-V2.5 demoted to free fallback only (no AA benchmark scores). Ox Alpha removed entirely (slow CoT latency). Fallback chains updated: hy3 → gpt-5.6-luna → mimo-v2.5-free. Live routing table: `.opencode/rules/model-routing.mdc`.

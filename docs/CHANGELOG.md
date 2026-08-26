@@ -1,3 +1,30 @@
+## 2026-08-26 — v1.7 (Hybrid Privacy Routing: Muse Spark + MiMo-V2.5)
+
+### Model Routing
+
+- **Hybrid privacy routing implemented**: Muse Spark for low-sensitivity, MiMo-V2.5 for sensitive
+- **Muse Spark 1.2 Contributor**: Intelligence 57, $0.01/task, 45k req/5h — used on research/exploration/writing
+- **MiMo-V2.5**: Intelligence 38, $0.06/task, 30k req/5h — used on config/security/full-context agents
+- **Hy3 dethroned and removed**: Intelligence 42 but too slow (80 t/s)
+- **Fallback chains updated**: sensitive → mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free; low-sensitivity → muse-spark → mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free
+- **Regression test allowlist updated**: added muse-spark-1.2-contributor
+
+### Why Hybrid
+
+- Muse Spark (Intelligence 57) is strongest model on platform at $0.01/task — unbeatable value for non-sensitive tasks
+- MiMo-V2.5 (Intelligence 38) is privacy-safe (zero-retention, no training) — used for config/security/full-context
+- **Privacy trade-off**: Muse Spark trains on data, but only used for low-sensitivity tasks (research, exploration, writing)
+- **Budget consideration**: $60/mo included, hybrid routing keeps spend within budget
+
+### Files Changed
+
+- `~/.omo/omo.jsonc` — hybrid routing: muse-spark on low-sensitivity, mimo-v2.5 on sensitive
+- `.opencode/rules/model-routing.mdc` — full rewrite to reflect hybrid routing
+- `scripts/regression-test.sh` — model allowlist updated (added muse-spark)
+- `docs/CHANGELOG.md` — this entry
+
+---
+
 ## 2026-08-25 — v1.6 (Hy3 Primary, MiMo Demoted)
 
 ### Model Routing

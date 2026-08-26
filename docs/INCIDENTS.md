@@ -10,7 +10,7 @@ Known errors, root causes, fixes, and current status for the OpenCode + OMO stac
 
 **Root:** OpenCode Go platform routing bug (#35149). Free models were hitting paid wallet validation gates. The Go auth token may also have carried stale routing metadata that directed requests through the billing gate.
 
-**Fix:** `opencode auth login` re-authenticated the token. The auth refresh cleared whatever routing metadata was incorrectly filtering requests through the Go billing gate. If that doesn't work, bypass Go entirely with `opencode --model opencode/deepseek-v4-flash-free`.
+**Fix:** `opencode auth login` re-authenticated the token. The auth refresh cleared whatever routing metadata was incorrectly filtering requests through the Go billing gate. If that doesn't work, bypass Go entirely with `opencode --model opencode/mimo-v2.5-free`. (2026-08-25: deepseek-v4-flash-free does not exist; replaced with mimo-v2.5-free)
 
 **Status:** Mitigated. Go routing is still broken per #35149 (OPEN). The `--model` bypass remains the reliable workaround.
 

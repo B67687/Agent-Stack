@@ -8,7 +8,7 @@ Quick reference for common OpenCode + OMO issues.
 
 **Problem:** "Insufficient balance" errors.
 **Check:** `opencode models` to verify auth token.
-**Fix:** `opencode auth login` to refresh. Fallback: `opencode --model opencode/deepseek-v4-flash-free`.
+**Fix:** `opencode auth login` to refresh. Fallback: `opencode --model opencode/mimo-v2.5-free`. (2026-08-25: deepseek-v4-flash-free does not exist; replaced with mimo-v2.5-free)
 
 ### 2. Config Not Loading
 
@@ -61,12 +61,14 @@ Quick reference for common OpenCode + OMO issues.
 **Problem:** Agent appears hung — process at ~100% CPU, no fresh log lines, SQLite WAL grows unbounded (healthy is KB; >100-200MB = unbounded writer). Root cause: a provider error (e.g. `AI_APICallError: Internal Server Error` on opencode-go) enters a silent retry loop with no backoff, no log output, no stop-and-report.
 
 **Check:**
+
 ```bash
 pgrep -af opencode            # find the looping PID (high CPU, stale log mtime)
 du -h ~/.local/share/opencode/opencode.db-wal   # WAL size — the tell
 ```
 
 **Fix (kill + recover):**
+
 ```bash
 kill <PID>                    # kill the runaway process immediately
 sqlite3 ~/.local/share/opencode/opencode.db 'PRAGMA wal_checkpoint(TRUNCATE);'

@@ -5,7 +5,7 @@ OpenCode + Oh-My-OpenAgent agent stack, mirrored to GitHub. It contains the actu
 config files, the auto-injected rule docs, the verification scripts, and the full
 documentation layer (ADRs, architecture, research) explaining every decision.
 
-The configs are the main content; the docs are the reference for *why* it is built
+The configs are the main content; the docs are the reference for _why_ it is built
 this way.
 
 > **Mirror boundary:** this repo tracks configs + docs + redacted data only. Untracked runtime cruft lives beside them in the same directory and is gitignored: `context-mode/` (ctx_* session DBs), `tasks/` (per-project task JSON), `.opencode/node_modules/` + `package-lock.json` (plugin deps), `backups/` (config snapshots), `.omo/` (agent ephemera). It is never committed — only the mirror content is.
@@ -27,12 +27,12 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full rationale and [doc
 
 ## Model routing (per 5-hour window)
 
-| Tier           | Rate/5hr  | Models                                    | Primary agents                                                |
-| -------------- | --------- | ----------------------------------------- | ------------------------------------------------------------- |
-| Go workhorse   | ~31k      | deepseek-v4-flash (fallback gpt-5.6-luna / minimax-m3) | oracle, architect, prometheus, metis, momus, sisyphus, worker, hephaestus, atlas, build + ultrabrain, unspecified-high, artistry, deep |
-| Go budget-frontier | 2,050 | gpt-5.6-luna (fallback minimax-m3)      | test-writer, review                                           |
-| Go visual      | 3k-4k     | minimax-m3                                | visual-engineering (cat)                                      |
-| Zen free       | free      | deepseek-v4-flash-free, mimo-v2.5-free    | explore, quick, sisyphus-junior, librarian, scout, writing, git, general |
+| Tier               | Rate/5hr | Models                                         | Primary agents                                                                                                                         |
+| ------------------ | -------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Go workhorse       | ~31k     | mimo-v2.5 (fallback gpt-5.6-luna / minimax-m3) | oracle, architect, prometheus, metis, momus, sisyphus, worker, hephaestus, atlas, build + ultrabrain, unspecified-high, artistry, deep |
+| Go budget-frontier | 2,050    | gpt-5.6-luna (fallback minimax-m3)             | test-writer, review                                                                                                                    |
+| Go visual          | 3k-4k    | minimax-m3                                     | visual-engineering (cat)                                                                                                               |
+| Zen free           | free     | mimo-v2.5-free                                 | explore, quick, sisyphus-junior, librarian, scout, writing, git, general                                                               |
 
 Full routing rationale (quality scores, pricing, limits, NOT-list guardrails) lives in
 `.opencode/rules/model-routing.mdc` (live policy; the older [research/2026-07-18-landscape-refresh.md](research/2026-07-18-landscape-refresh.md) is superseded — see its banner).
@@ -103,7 +103,6 @@ commands use bare PATH-resolvable names (opencode spawns them without a shell, s
 Run `bash scripts/redact-config.sh --check` to scan all tracked files for
 absolute-home paths, personal commit identity, and possible API keys.
 
-
 ## System Dependencies
 
 The config expects these global tools to be installed:
@@ -128,22 +127,22 @@ the config stack with how-to-work rules.
 Full detail: [docs/INCIDENTS.md](docs/INCIDENTS.md). Current guardrail state:
 `disabled_hooks = ["todo-continuation-enforcer", "keyword-detector"]` (2026-08-04 — goal + compaction-context-injector re-armed; goal stays inert via `goal.enabled: false`)
 
-| Date | Incident | Fix |
-| ---- | -------- | --- |
-| Jun 2026 | Playwright 502 on Ubuntu 26.04 | patched version check + headless |
-| Jul 2026 | Go platform #35149 routing break | auth login + free-tier fallback |
-| Jul 2026 | Sisyphus attribution injection | git hook + config override + dist patch |
-| Jul 2026 | DB bloat (WAL 339MB) | WAL checkpoint + weekly VACUUM cron |
-| Jul 2026 | Goal handler bug (v4.19.0) — **recurred Aug (Incident 9)** | config-level fix: goal hook disabled |
-| Jul 2026 | Agent registration failure / dist corruption | dist patches; rollback → v4.19.4 |
-| Jul 2026 | Continuation injection loop | 4-entry disabled_hooks (reduced to 2-entry 2026-08-04) |
+| Date     | Incident                                                   | Fix                                                    |
+| -------- | ---------------------------------------------------------- | ------------------------------------------------------ |
+| Jun 2026 | Playwright 502 on Ubuntu 26.04                             | patched version check + headless                       |
+| Jul 2026 | Go platform #35149 routing break                           | auth login + free-tier fallback                        |
+| Jul 2026 | Sisyphus attribution injection                             | git hook + config override + dist patch                |
+| Jul 2026 | DB bloat (WAL 339MB)                                       | WAL checkpoint + weekly VACUUM cron                    |
+| Jul 2026 | Goal handler bug (v4.19.0) — **recurred Aug (Incident 9)** | config-level fix: goal hook disabled                   |
+| Jul 2026 | Agent registration failure / dist corruption               | dist patches; rollback → v4.19.4                       |
+| Jul 2026 | Continuation injection loop                                | 4-entry disabled_hooks (reduced to 2-entry 2026-08-04) |
 
 ## Versions
 
-| Package | Current Version | Source Repo | Last Checked |
-| ------- | --------------- | ----------- | ------------ |
-| oh-my-openagent | v4.19.4 | [code-yeongyu/oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) | 2026-08-02 |
-| OpenCode | v1.18.12 | [anomalyco/opencode](https://github.com/anomalyco/opencode) | 2026-08-04 |
+| Package         | Current Version | Source Repo                                                                     | Last Checked |
+| --------------- | --------------- | ------------------------------------------------------------------------------- | ------------ |
+| oh-my-openagent | v4.19.4         | [code-yeongyu/oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) | 2026-08-02   |
+| OpenCode        | v1.18.12        | [anomalyco/opencode](https://github.com/anomalyco/opencode)                     | 2026-08-04   |
 
 Release tags from GitHub — when upstream publishes a new tag, the update tracker creates an issue.
 

@@ -1,11 +1,12 @@
 # ADR 008: OpenCode Go Platform Incident (July 2026)
 
 **Status:** Accepted  
-**Date:** 2026-07-04  
+**Date:** 2026-07-04
 
 ## Context
 
 On July 3-4 2026, OpenCode experienced a platform incident affecting Go subscribers. Symptoms:
+
 - "Insufficient balance" errors when using ANY model (free-tier AND Go-tier)
 - 502 Bad Gateway on Go API endpoints
 - Free-tier models incorrectly hitting paid wallet validation gates
@@ -19,9 +20,9 @@ Our overengineering (concurrency 15, maxToolCalls 1000) amplified the blast radi
 Mitigation stack:
 
 1. **Auth refresh** (`opencode auth login`) — resolved the immediate issue despite no explicit credential expiry. Perhaps the cached auth token had stale routing metadata.
-2. **Default model → free-tier** — `opencode/deepseek-v4-flash-free` bypasses Go routing entirely and continues working regardless of Go infrastructure status.
-3. **Opencode as fallback default** — The default model is `opencode/deepseek-v4-flash-free` not `opencode-go/*`, so even if Go routing is down, the agent loads on Zen free models.
-4. **Documented workaround route** — When Go is down: use `--model opencode/deepseek-v4-flash-free` flag or set default model temporarily.
+2. **Default model → free-tier** — `opencode/deepseek-v4-flash-free` bypasses Go routing entirely and continues working regardless of Go infrastructure status. (2026-08-25: deepseek-v4-flash-free confirmed non-existent on platform. Free fallback is now opencode/mimo-v2.5-free)
+3. **Opencode as fallback default** — The default model is `opencode/deepseek-v4-flash-free` not `opencode-go/*`, so even if Go routing is down, the agent loads on Zen free models. (2026-08-25: deepseek-v4-flash-free confirmed non-existent on platform. Free fallback is now opencode/mimo-v2.5-free)
+4. **Documented workaround route** — When Go is down: use `--model opencode/deepseek-v4-flash-free` flag or set default model temporarily. (2026-08-25: deepseek-v4-flash-free confirmed non-existent on platform. Free fallback is now opencode/mimo-v2.5-free)
 
 Do NOT remove Go-tier from agents — the subscription is paid for and should be used when infrastructure is healthy. But the default loading mechanism should be free-tier to ensure the system always comes up.
 

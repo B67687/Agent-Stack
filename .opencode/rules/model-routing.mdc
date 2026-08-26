@@ -4,7 +4,7 @@ globs: ["**/oh-my-openagent.jsonc", "**/opencode.jsonc", "**/.omo/plans/**", "**
 alwaysApply: false
 ---
 
-# Model Routing (opencode-go landscape, ratified 2026-08-01, Hy3 primary 2026-08-25)
+# Model Routing (opencode-go landscape, hybrid privacy model 2026-08-26)
 
 ## Canonical relationship
 
@@ -18,35 +18,45 @@ executes); this file records intent so future edits stay justified.
 
 | Agent | Model | Fallback |
 |---|---|---|
-| sisyphus / architect / build / worker | `opencode-go/hy3` | `gpt-5.6-luna → mimo-v2.5-free` |
-| oracle / prometheus / metis / momus / ultrabrain | `opencode-go/hy3` | `gpt-5.6-luna → glm-5.2 → mimo-v2.5-free` |
-| explore / scout / librarian / multimodal-looker / sisyphus-junior / writing / git / quick | `opencode-go/hy3` | `gpt-5.6-luna → mimo-v2.5-free` |
+|| sisyphus / architect / build / worker | `opencode-go/mimo-v2.5` | `gpt-5.6-luna → mimo-v2.5-free` |
+|| oracle / prometheus / metis / momus / ultrabrain | `opencode-go/mimo-v2.5` | `gpt-5.6-luna → glm-5.2 → mimo-v2.5-free` |
+|| explore / scout / librarian / multimodal-looker | `opencode-go/muse-spark-1.2-contributor` | `mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free` |
+|| writing / git / quick / unspecified-low / artistry / deep | `opencode-go/muse-spark-1.2-contributor` | `mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free` |
+|| sisyphus-junior / unspecified-high | `opencode-go/mimo-v2.5` | `muse-spark → gpt-5.6-luna → mimo-v2.5-free` |
 | test-writer / review | `opencode-go/gpt-5.6-luna` | `deepseek-v4-flash → minimax-m3 → mimo-v2.5-free` |
 | hephaestus / atlas | `opencode-go/deepseek-v4-flash` | (existing; both disabled) |
-| visual-engineering | `opencode-go/minimax-m3` | `deepseek-v4-flash → gpt-5.6-luna → mimo-v2.5-free` |
+|| visual-engineering | `opencode-go/minimax-m3` | `gpt-5.6-luna → mimo-v2.5-free` |
 | general | category `unspecified-low` | (inherits) |
 
 ## Category table
 
 | Category | Model |
 |---|---|
-| ultrabrain | `opencode-go/hy3` |
-| unspecified-high / artistry / deep | `opencode-go/hy3` |
-| visual-engineering | `opencode-go/minimax-m3` |
-| writing / git / quick / unspecified-low | `opencode-go/hy3` |
+|| ultrabrain | `opencode-go/mimo-v2.5` |
+|| unspecified-high | `opencode-go/mimo-v2.5` |
+|| artistry / deep / writing / git / quick / unspecified-low | `opencode-go/muse-spark-1.2-contributor` |
 
 ## Model rationale
 
-### Hy3 as primary workhorse (routed 2026-08-25)
+### Muse Spark 1.2 Contributor as low-sensitivity workhorse (routed 2026-08-26)
 
-- **Cost**: $0.14 input / $0.55 output per 1M tokens (~$0.04/task on AA benchmarks)
-- **Intelligence**: AA Intelligence Index **42** (#15/107 open weights, above median 27)
-- **Speed**: 80 t/s output, 2.90s TTFT — decent for a reasoning model
-- **Architecture**: 299B total / 21B active (MoE, 192 experts top-8), Apache 2.0
-- **Context**: 256k tokens
-- **Why Hy3 over MiMo-V2.5**: MiMo has no AA benchmark scores (not in top 29), Hy3 scores 42. Hy3 is 4× more intelligent for ~4× the cost — the best intelligence-per-dollar outside free models.
-- **Why Hy3 over DeepSeek V4 Flash**: Flash scores 52 (10 points higher) but costs 3× more ($0.11 vs $0.04/task). For volume agents, the 10-point gap doesn't justify 3× the cost.
-- **Fallback chain**: hy3 ($0.04) → gpt-5.6-luna ($0.05) → mimo-v2.5-free ($0, trains)
+- **Cost**: $0.10 input / $0.20 output per 1M tokens (~$0.01/task)
+- **Intelligence**: AA Intelligence Index **57** (#17/187)
+- **Privacy**: ⚠️ Meta trains on prompts and completions — GitHub identity risk
+- **Rate limit**: 45,300 req/5h (highest on platform)
+- **Used on**: explore, scout, librarian, multimodal-looker, writing, git, quick, unspecified-low, artistry, deep
+- **Why Muse Spark for these**: Low-sensitivity tasks (research, exploration, writing) don't expose config or security context. Intelligence 57 at $0.01/task is unbeatable value.
+- **Fallback chain**: muse-spark ($0.01) → mimo-v2.5 ($0.06) → gpt-5.6-luna ($0.05) → mimo-v2.5-free ($0, trains)
+
+### MiMo-V2.5 as sensitive workhorse (routed 2026-08-26)
+
+- **Cost**: $0.14 input / $0.28 output per 1M tokens (~$0.06/task)
+- **Intelligence**: AA Intelligence Index **38** (#24/107)
+- **Privacy**: ✅ Zero-retention, no training
+- **Rate limit**: 30,100 req/5h
+- **Used on**: sisyphus, architect, build, worker, oracle, prometheus, metis, momus, ultrabrain, sisyphus-junior, unspecified-high
+- **Why MiMo-V2.5 for these**: Sensitive tasks (config, security, full context) require privacy. Intelligence 38 is sufficient for most coding tasks.
+- **Fallback chain**: mimo-v2.5 ($0.06) → gpt-5.6-luna ($0.05) → mimo-v2.5-free ($0, trains)
 - **Data training**: paid tier = zero-retention. Free variant (hy3-free) trains on data.
 
 ### DeepSeek V4 Flash — quality fallback only
@@ -79,9 +89,12 @@ executes); this file records intent so future edits stay justified.
 - $0.30/$1.20 per 1M tokens, 3,200 req/5h
 - Only model supporting image + video input — kept for visual-engineering slot
 
-### MiMo-V2.5 — free fallback only
+### MiMo-V2.5 — primary workhorse
 
-- No AA benchmark scores (not in top 29 despite being #3 on OpenRouter by usage)
+- AA Intelligence Index **38** (#24/107), above median 27
+- Paid tier: $0.14/$0.28, 30,100 req/5h — cheap and fast
+- Free tier: trains on user data, used only as last-resort fallback
+- Routed as primary 2026-08-26: Hy3 was dethroned (too slow at 80 t/s), MiMo-V2.5 offers best speed+cost+privacy balance
 - Paid tier: $0.14/$0.28, 30,100 req/5h — cheap but too weak for primary use
 - Free tier: trains on user data, used only as last-resort fallback
 - Previously primary (Aug 20-25), demoted after landscape review confirmed weak benchmarks
@@ -94,11 +107,12 @@ executes); this file records intent so future edits stay justified.
 - Sustainable pricing unclear (promotional rate vs official 10× gap)
 - User decision: not routed due to data privacy concerns (GitHub identity in repo data)
 
-### Ox Alpha — retired from routing
+### Hy3 — retired from routing
 
-- Was free with unlimited quota, always-on CoT made it too slow (~3-5s latency overhead)
+- Was Intelligence 42, $0.04/task, 80 t/s — dethroned for being too slow
+- Removed from all model fields and fallback chains 2026-08-26
 - Removed from model fields and fallback chains entirely
-- If free window ends or model deprecated: fallback auto-catches via Hy3 primary
+- If Hy3 free window ends or model deprecated: fallback auto-catches via MiMo-V2.5 primary
 
 ### fallback_models allowlist (2026-08-02/03, claude-opus-5 incident)
 
@@ -118,7 +132,7 @@ Three enforcement layers (deliberate, not a conflict): soft routing target ~$15/
 6. No non-opencode-go / non-deepseek providers.
 7. No `opencode-go/deepseek-v4-pro` — still the Apr preview; not worth the spend.
 8. **Ox Alpha: SKIP** — too slow (always-on CoT latency). Removed from routing entirely.
-9. **MiMo-V2.5 paid: SKIP** — no AA benchmark scores, too weak for primary use. Free tier only as last-resort fallback.
+9. **Hy3: SKIP** — too slow (80 t/s). Dethroned 2026-08-26. Not in fallback chains.
 
 ## Refresh trigger
 
