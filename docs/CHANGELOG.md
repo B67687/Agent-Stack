@@ -1,3 +1,31 @@
+## 2026-08-27 — v1.8 (Muse Spark Primary: Intelligence 57 for All Agents)
+
+### Model Routing
+
+- **Muse Spark expanded to ALL agents** except sisyphus orchestrator — Intelligence 57 at $0.01/task beats MiMo's 38 on every metric
+- **Sisyphus stays on MiMo-V2.5** — orchestrator guard (zero-retention, no training, sees full context)
+- **Fallback chains unified**: muse-spark → mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free
+- **modelConcurrency**: muse-spark=15, mimo-v2.5=10 (unchanged)
+
+### Why Muse Spark Primary
+
+- Intelligence 57 vs MiMo 38 — 50% stronger on every benchmark
+- $0.01/task vs MiMo $0.06/task — 6× cheaper
+- Faster generation speed
+- Privacy tradeoff: Meta trains on prompts, but no PII in agent code/architecture contexts
+- Sisyphus orchestrator stays on MiMo (privacy for full-context routing decisions)
+
+### Files Changed
+
+- `~/.omo/omo.jsonc` — 8 agents + 2 categories moved from mimo-v2.5 to muse-spark
+- `.opencode/rules/model-routing.mdc` — full rewrite: muse-spark primary, mimo orchestrator-only
+- `docs/AGENTS.md` — rewritten: muse-spark covers all agents except sisyphus
+- `docs/CONFIG_MAP.md` — default model, concurrency, summary updated
+- `docs/VERSIONS.md` — model routing section rewritten
+- `scripts/regression-test.sh` — docs-sync gate updated (muse-spark:15, mimo-v2.5:10)
+
+---
+
 ## 2026-08-26 — v1.7 (Hybrid Privacy Routing: Muse Spark + MiMo-V2.5)
 
 ### Model Routing

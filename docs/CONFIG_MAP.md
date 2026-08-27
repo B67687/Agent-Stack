@@ -18,22 +18,22 @@ Exhaustive reference for every non-default setting across `opencode.jsonc` and `
 
 ## Provider
 
-| Setting                             | Value                            | Rationale                                                                                                    |
-| ----------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `provider.deepseek.options.baseURL` | `https://api.deepseek.com/v1`    | Direct DeepSeek API — lower latency than routing through OpenAI-compatible proxy                             |
-| `model` (default)                   | `opencode-go/mimo-v2.5`          | Primary model — hybrid routing: mimo-v2.5 for sensitive/complex, muse-spark for low-sensitivity (2026-08-26) |
-| `subagent_depth`                    | **3**                            | Preemptive — needed for OpenCode v1.18.x where subagent nesting defaults to off                              |
-| `disabled_providers`                | `openai, anthropic, google, xai` | Prevents accidental premium API usage                                                                        |
+| Setting                             | Value                                    | Rationale                                                                           |
+| ----------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------- |
+| `provider.deepseek.options.baseURL` | `https://api.deepseek.com/v1`            | Direct DeepSeek API — lower latency than routing through OpenAI-compatible proxy    |
+| `model` (default)                   | `opencode-go/muse-spark-1.2-contributor` | Primary model — muse-spark for all agents except sisyphus orchestrator (2026-08-27) |
+| `subagent_depth`                    | **3**                                    | Preemptive — needed for OpenCode v1.18.x where subagent nesting defaults to off     |
+| `disabled_providers`                | `openai, anthropic, google, xai`         | Prevents accidental premium API usage                                               |
 
 ## Background Task
 
-| Setting              | Current                                                                                                 | Default | Why                                                                                                                         |
-| -------------------- | ------------------------------------------------------------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `concurrency`        | **15**                                                                                                  | 5       | More parallel subagents for multi-agent orchestration                                                                       |
-| `maxToolCalls`       | **1000**                                                                                                | ~100    | Prevents subagent loops from being killed mid-work                                                                          |
-| `staleTimeoutMs`     | **300000** (5 min)                                                                                      | 300000  | Reverted from 900000 — fast failure detection                                                                               |
-| Provider concurrency | deepseek:3, opencode-go:10                                                                              | —       | Provider-specific caps prevent rate limiting                                                                                |
-| Model concurrency    | mimo-v2.5:10, muse-spark-1.2-contributor:15, gpt-5.6-luna:2, minimax-m3:2, glm-5.2:2, mimo-v2.5-free:10 | —       | Per-model caps (updated 2026-08-26: hybrid privacy routing — mimo-v2.5=10 for sensitive, muse-spark=15 for low-sensitivity) |
+| Setting              | Current                                                                                                   | Default | Why                                                                                              |
+| -------------------- | --------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------ |
+| `concurrency`        | **15**                                                                                                    | 5       | More parallel subagents for multi-agent orchestration                                            |
+| `maxToolCalls`       | **1000**                                                                                                  | ~100    | Prevents subagent loops from being killed mid-work                                               |
+| `staleTimeoutMs`     | **300000** (5 min)                                                                                        | 300000  | Reverted from 900000 — fast failure detection                                                    |
+| Provider concurrency | deepseek:3, opencode-go:10                                                                                | —       | Provider-specific caps prevent rate limiting                                                     |
+| `Model concurrency`  | `muse-spark-1.2-contributor:15, mimo-v2.5:10, gpt-5.6-luna:2, minimax-m3:2, glm-5.2:2, mimo-v2.5-free:10` | —       | Per-model caps (updated 2026-08-27: muse-spark=15 primary, mimo-v2.5=10 orchestrator guard only) |
 
 ## Performance
 
@@ -162,7 +162,7 @@ Exhaustive reference for every non-default setting across `opencode.jsonc` and `
 
 Full routing table lives in the canonical source: [.opencode/rules/model-routing.mdc](../.opencode/rules/model-routing.mdc) — per-agent + per-category model assignments, fallbacks, and the NOT-routed list. This section intentionally does not duplicate it (single source of truth).
 
-Summary (updated 2026-08-26): Hybrid privacy routing active — `opencode-go/mimo-v2.5` handles sensitive/complex work (agents/categories needing privacy); `opencode-go/muse-spark-1.2-contributor` handles low-sensitivity tasks (explore, scout, quick, unspecified-low, sisyphus-junior, librarian, multimodal-looker, writing, git). Budget-frontier `opencode-go/gpt-5.6-luna` on Test-Writer/Review; `opencode-go/minimax-m3` (visual) on visual-engineering; Zen free tier on eligible categories (mimo-v2.5-free — deepseek-v4-flash-free does not exist on platform).
+Summary (updated 2026-08-27): Muse Spark primary routing active — `opencode-go/muse-spark-1.2-contributor` (Intelligence 57, $0.01/task) covers ALL agents except sisyphus orchestrator. `opencode-go/mimo-v2.5` (Intelligence 38, zero-retention) used only as orchestrator guard. Budget-frontier `opencode-go/gpt-5.6-luna` on Test-Writer/Review; `opencode-go/minimax-m3` (visual) on visual-engineering; Zen free tier as last-resort fallback (mimo-v2.5-free — deepseek-v4-flash-free does not exist on platform).
 
 ## Reasoning Effort & Thinking Budget
 

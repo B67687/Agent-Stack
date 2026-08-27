@@ -4,7 +4,7 @@ globs: ["**/oh-my-openagent.jsonc", "**/opencode.jsonc", "**/.omo/plans/**", "**
 alwaysApply: false
 ---
 
-# Model Routing (opencode-go landscape, hybrid privacy model 2026-08-26)
+# Model Routing (opencode-go landscape, muse-spark-primary 2026-08-27)
 
 ## Canonical relationship
 
@@ -18,44 +18,45 @@ executes); this file records intent so future edits stay justified.
 
 | Agent | Model | Fallback |
 |---|---|---|
-|| sisyphus / architect / build / worker | `opencode-go/mimo-v2.5` | `gpt-5.6-luna → mimo-v2.5-free` |
-|| oracle / prometheus / metis / momus / ultrabrain | `opencode-go/mimo-v2.5` | `gpt-5.6-luna → glm-5.2 → mimo-v2.5-free` |
+|| sisyphus | `opencode-go/mimo-v2.5` | `gpt-5.6-luna → mimo-v2.5-free` |
+|| architect / build / worker | `opencode-go/muse-spark-1.2-contributor` | `mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free` |
+|| oracle / prometheus / metis / momus | `opencode-go/muse-spark-1.2-contributor` | `mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free` |
 || explore / scout / librarian / multimodal-looker | `opencode-go/muse-spark-1.2-contributor` | `mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free` |
 || writing / git / quick / unspecified-low / artistry / deep | `opencode-go/muse-spark-1.2-contributor` | `mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free` |
-|| sisyphus-junior / unspecified-high | `opencode-go/mimo-v2.5` | `muse-spark → gpt-5.6-luna → mimo-v2.5-free` |
-| test-writer / review | `opencode-go/gpt-5.6-luna` | `deepseek-v4-flash → minimax-m3 → mimo-v2.5-free` |
-| hephaestus / atlas | `opencode-go/deepseek-v4-flash` | (existing; both disabled) |
+|| sisyphus-junior / unspecified-high | `opencode-go/muse-spark-1.2-contributor` | `mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free` |
+|| test-writer / review | `opencode-go/gpt-5.6-luna` | `deepseek-v4-flash → minimax-m3 → mimo-v2.5-free` |
+|| hephaestus / atlas | `opencode-go/deepseek-v4-flash` | (existing; both disabled) |
 || visual-engineering | `opencode-go/minimax-m3` | `gpt-5.6-luna → mimo-v2.5-free` |
-| general | category `unspecified-low` | (inherits) |
+|| general | category `unspecified-low` | (inherits) |
 
 ## Category table
 
 | Category | Model |
 |---|---|
-|| ultrabrain | `opencode-go/mimo-v2.5` |
-|| unspecified-high | `opencode-go/mimo-v2.5` |
+|| ultrabrain | `opencode-go/muse-spark-1.2-contributor` |
+|| unspecified-high | `opencode-go/muse-spark-1.2-contributor` |
 || artistry / deep / writing / git / quick / unspecified-low | `opencode-go/muse-spark-1.2-contributor` |
 
 ## Model rationale
 
-### Muse Spark 1.2 Contributor as low-sensitivity workhorse (routed 2026-08-26)
+### Muse Spark 1.2 Contributor as primary workhorse (routed 2026-08-26, expanded 2026-08-27)
 
 - **Cost**: $0.10 input / $0.20 output per 1M tokens (~$0.01/task)
 - **Intelligence**: AA Intelligence Index **57** (#17/187)
 - **Privacy**: ⚠️ Meta trains on prompts and completions — GitHub identity risk
 - **Rate limit**: 45,300 req/5h (highest on platform)
-- **Used on**: explore, scout, librarian, multimodal-looker, writing, git, quick, unspecified-low, artistry, deep
-- **Why Muse Spark for these**: Low-sensitivity tasks (research, exploration, writing) don't expose config or security context. Intelligence 57 at $0.01/task is unbeatable value.
+- **Used on**: ALL agents except sisyphus (orchestrator), review, test-writer, visual-engineering
+- **Why Muse Spark for these**: Intelligence 57 at $0.01/task is unbeatable value. Sisyphus stays on MiMo as orchestrator guard (sees full context including file paths and user intent).
 - **Fallback chain**: muse-spark ($0.01) → mimo-v2.5 ($0.06) → gpt-5.6-luna ($0.05) → mimo-v2.5-free ($0, trains)
 
-### MiMo-V2.5 as sensitive workhorse (routed 2026-08-26)
+### MiMo-V2.5 as orchestrator guard (routed 2026-08-26, narrowed 2026-08-27)
 
 - **Cost**: $0.14 input / $0.28 output per 1M tokens (~$0.06/task)
 - **Intelligence**: AA Intelligence Index **38** (#24/107)
 - **Privacy**: ✅ Zero-retention, no training
 - **Rate limit**: 30,100 req/5h
-- **Used on**: sisyphus, architect, build, worker, oracle, prometheus, metis, momus, ultrabrain, sisyphus-junior, unspecified-high
-- **Why MiMo-V2.5 for these**: Sensitive tasks (config, security, full context) require privacy. Intelligence 38 is sufficient for most coding tasks.
+- **Used on**: sisyphus only (main orchestrator — sees full context including file paths and user intent)
+- **Why MiMo-V2.5 for sisyphus**: Orchestrator sees everything — config, security, user intent, file paths. Privacy-safe (zero-retention, no training). Intelligence 38 sufficient for routing decisions.
 - **Fallback chain**: mimo-v2.5 ($0.06) → gpt-5.6-luna ($0.05) → mimo-v2.5-free ($0, trains)
 - **Data training**: paid tier = zero-retention. Free variant (hy3-free) trains on data.
 
@@ -89,23 +90,21 @@ executes); this file records intent so future edits stay justified.
 - $0.30/$1.20 per 1M tokens, 3,200 req/5h
 - Only model supporting image + video input — kept for visual-engineering slot
 
-### MiMo-V2.5 — primary workhorse
+### MiMo-V2.5 — orchestrator guard only
 
 - AA Intelligence Index **38** (#24/107), above median 27
-- Paid tier: $0.14/$0.28, 30,100 req/5h — cheap and fast
+- Paid tier: $0.14/$0.28, 30,100 req/5h — cheap but Intelligence 38 weaker than Muse Spark 57
 - Free tier: trains on user data, used only as last-resort fallback
-- Routed as primary 2026-08-26: Hy3 was dethroned (too slow at 80 t/s), MiMo-V2.5 offers best speed+cost+privacy balance
-- Paid tier: $0.14/$0.28, 30,100 req/5h — cheap but too weak for primary use
-- Free tier: trains on user data, used only as last-resort fallback
-- Previously primary (Aug 20-25), demoted after landscape review confirmed weak benchmarks
+- Routed as orchestrator guard 2026-08-27: only sisyphus stays on MiMo (privacy for full-context orchestration). All other agents moved to Muse Spark (Intelligence 57).
+- Previously primary for all sensitive agents (Aug 26), narrowed to orchestrator-only after Muse Spark proved superior
 
-### Muse Spark 1.2 Contributor — NOT routed
+### Muse Spark 1.2 Contributor — primary for all agents (except orchestrator)
 
 - AA Intelligence Index **57** (#17/187), highest intelligence on the platform
 - $0.10/$0.20 on OpenCode Go (10× cheaper than official Meta API $1.25/$4.25)
 - **Meta trains on prompts and completions** — the discount is paid with user data
 - Sustainable pricing unclear (promotional rate vs official 10× gap)
-- User decision: not routed due to data privacy concerns (GitHub identity in repo data)
+- User decision 2026-08-27: expanded from low-sensitivity-only to ALL agents except sisyphus. Intelligence 57 and speed beat MiMo on every metric. Privacy tradeoff acceptable for code/architecture work (no PII).
 
 ### Hy3 — retired from routing
 
@@ -127,7 +126,7 @@ Three enforcement layers (deliberate, not a conflict): soft routing target ~$15/
 1. **NEVER add a custom `opencode-go` provider entry with `@ai-sdk/openai-compatible`** — it breaks gpt-5.6-luna (responses-only transport). The built-in opencode-go provider handles per-model transport.
 2. No Kimi K3 ($3/$15), no Grok 4.5 ($2/$6) — spend stays below that tier.
 3. No Qwen3.7 Max ($2.50/$7.50) — hallucination-prone (Akita v2 51/C); concurrency 0.
-4. No Muse Spark 1.2 Contributor as PRIMARY — Meta trains on prompts/completions. GitHub identity risk. Pricing sustainability unclear (10× below official).
+4. ~~No Muse Spark 1.2 Contributor as PRIMARY~~ — **OVERRIDDEN 2026-08-27**: Muse Spark is now primary for all agents except sisyphus. Intelligence 57 at $0.01/task is too good to pass up. Privacy: Meta trains but no PII in agent contexts.
 5. Routing scope only — no permission/hook/agent-definition/provider changes.
 6. No non-opencode-go / non-deepseek providers.
 7. No `opencode-go/deepseek-v4-pro` — still the Apr preview; not worth the spend.
