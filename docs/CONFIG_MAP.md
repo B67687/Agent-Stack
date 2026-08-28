@@ -162,7 +162,7 @@ Exhaustive reference for every non-default setting across `opencode.jsonc` and `
 
 Full routing table lives in the canonical source: [.opencode/rules/model-routing.mdc](../.opencode/rules/model-routing.mdc) — per-agent + per-category model assignments, fallbacks, and the NOT-routed list. This section intentionally does not duplicate it (single source of truth).
 
-Summary (updated 2026-08-27): Muse Spark primary routing active — `opencode-go/muse-spark-1.2-contributor` (Intelligence 57, $0.01/task) covers ALL agents except sisyphus orchestrator. `opencode-go/mimo-v2.5` (Intelligence 38, zero-retention) used only as orchestrator guard. Budget-frontier `opencode-go/gpt-5.6-luna` on Test-Writer/Review; `opencode-go/minimax-m3` (visual) on visual-engineering; Zen free tier as last-resort fallback (mimo-v2.5-free — deepseek-v4-flash-free does not exist on platform).
+Summary (updated 2026-08-28): ALL agents on `opencode-go/muse-spark-1.2-contributor` (Intelligence 57, $0.01/task) — including sisyphus (moved 2026-08-28 after cache fix, Intelligence 57 beats 38 on every metric). `opencode-go/mimo-v2.5` now first fallback only (zero-retention). Budget-frontier `opencode-go/gpt-5.6-luna` on test-writer/review; `opencode-go/minimax-m3` on visual-engineering; Zen free as last-resort (mimo-v2.5-free). `agent-session kill` + `restart-opencode.sh` now clear stale `/cache/tmp/opencode/*/ .omo/omo.jsonc`.
 
 ## Reasoning Effort & Thinking Budget
 

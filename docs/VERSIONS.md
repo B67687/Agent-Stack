@@ -1,6 +1,6 @@
 # Versions
 
-Tracked versions for the Agent Stack config. Updated 2026-08-26.
+Tracked versions for the Agent Stack config. Updated 2026-08-28.
 
 ## Core Tools
 
@@ -13,18 +13,19 @@ Tracked versions for the Agent Stack config. Updated 2026-08-26.
 
 | Setting               | Value                                                                            | Updated    |
 | --------------------- | -------------------------------------------------------------------------------- | ---------- |
-| Primary model         | opencode-go/muse-spark-1.2-contributor                                           | 2026-08-27 |
-| Orchestrator guard    | opencode-go/mimo-v2.5 (sisyphus only)                                            | 2026-08-27 |
-| Intelligence Index    | 57 (Muse), 38 (MiMo)                                                             | —          |
-| Cost per task         | $0.01 (Muse), $0.06 (MiMo)                                                       | —          |
-| Primary fallback      | muse-spark → mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free                           | 2026-08-27 |
-| Orchestrator fallback | mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free                                        | 2026-08-27 |
-| modelConcurrency      | muse-spark=15, mimo-v2.5=10, flash=2, luna=2, minimax=2, glm-5.2=2, mimo-free=10 | 2026-08-27 |
+| Primary model         | opencode-go/muse-spark-1.2-contributor                                           | 2026-08-28 |
+| Orchestrator guard    | — (all agents on muse-spark since 2026-08-28, cache bug fixed)                   | 2026-08-28 |
+| Intelligence Index    | 57 (Muse), 38 (MiMo fallback)                                                    | —          |
+| Cost per task         | $0.01 (Muse), $0.06 (MiMo fallback)                                              | —          |
+| Primary fallback      | muse-spark → mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free                           | 2026-08-28 |
+| Orchestrator fallback | muse-spark → mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free (same as primary)         | 2026-08-28 |
+| modelConcurrency      | muse-spark=15, mimo-v2.5=10, flash=2, luna=2, minimax=2, glm-5.2=2, mimo-free=10 | 2026-08-28 |
 
 ## Key Dates
 
 | Date       | Event                                                                            |
 | ---------- | -------------------------------------------------------------------------------- |
+| 2026-08-28 | v1.9: All agents on Muse Spark + `agent-session kill` cache fix                  |
 | 2026-08-27 | v1.8: Muse Spark primary — Intelligence 57 covers all agents except orchestrator |
 | 2026-08-25 | v1.6: Hy3 routed as primary, Ox Alpha removed, MiMo demoted (superseded)         |
 | 2026-08-20 | Ox Alpha temporarily routed as primary                                           |

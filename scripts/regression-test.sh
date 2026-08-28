@@ -655,7 +655,7 @@ agents = slurp(h + '/.config/opencode/docs/AGENTS.md')
 wf = slurp(h + '/.config/opencode/docs/WORKFLOW.md')
 issues = []
 # modelConcurrency truth (live omo.jsonc)
-if 'muse-spark:15' not in cmap: issues.append('CONFIG_MAP modelConcurrency muse-spark:15')
+if 'muse-spark-1.2-contributor:15' not in cmap: issues.append('CONFIG_MAP modelConcurrency muse-spark-1.2-contributor:15')
 if 'mimo-v2.5:10' not in cmap: issues.append('CONFIG_MAP modelConcurrency mimo-v2.5:10')
 if 'mimo-v2.5-free:10' not in cmap: issues.append('CONFIG_MAP modelConcurrency mimo-free:10')
 # disabled_hooks 4-entry truth

@@ -3,10 +3,10 @@
 # agent-session, and CONFIRM the new process actually loaded the new config.
 #
 # Why this exists: opencode is a compiled Bun binary that boots in ~1s and the
-# OMO plugin reads ~/.omo/omo.jsonc fresh at every server start — there is NO
-# config cache to clear. "Did it reload?" is therefore just: is the new
-# process start-time NEWER than the config file's mtime? This script asserts
-# exactly that.
+# OMO plugin reads ~/.omo/omo.jsonc at server start but also caches to
+# ~/.cache/tmp/opencode/*/ .omo/omo.jsonc — stale cache must be
+# cleared or restart reuses old config. "Did it reload?" is therefore: is
+# the new process start-time NEWER than config mtime AND cache cleared?
 #
 #   restart-opencode.sh                # restart session 'agent' in $PWD
 #   restart-opencode.sh myproject      # restart named session
@@ -54,6 +54,9 @@ else
     sleep 1
   fi
   echo "  ✅ stopped"
+  # Clear stale OMO tmp cache (otherwise restart reuses old omo.jsonc)
+  find "$HOME/.cache/tmp" -name "omo.jsonc" -delete 2>/dev/null || true
+  echo "  ✅ OMO cache cleared"
 fi
 
 # ── 3. Relaunch via agent-session (isolated cgroup) ──

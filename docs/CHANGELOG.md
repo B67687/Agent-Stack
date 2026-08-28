@@ -1,3 +1,28 @@
+## 2026-08-28 — v1.9 (All Agents on Muse Spark + Cache Fix)
+
+### Model Routing
+
+- **Sisyphus moved to Muse Spark** — was lone mimo-v2.5 guard, now all 21 agents on Intelligence 57
+- **Stale tmp cache bug fixed** — `~/.cache/tmp/opencode/*/ .omo/omo.jsonc` survived `agent-session kill`; now cleared on kill + on `restart-opencode.sh`
+- **agent-session kill hardened** — now `systemctl stop` + `find cache delete` + `pkill -9 opencode`
+- **modelConcurrency unchanged**: muse-spark=15, mimo-v2.5=10 (fallback)
+
+### Why
+
+- Intelligence 57 beats 38 on every metric, 6× cheaper, and cache fix removes privacy-guard justification
+- MiMo-V2.5 remains as first fallback (zero-retention) if Muse Spark 429s
+
+### Files Changed
+
+- `~/.omo/omo.jsonc` — sisyphus: mimo-v2.5 → muse-spark-1.2-contributor (0 agents left on mimo primary)
+- `~/.local/bin/agent-session` — kill now clears OMO tmp cache + orphan pkill
+- `scripts/restart-opencode.sh` — clears tmp cache on restart + fixed comment
+- `.opencode/rules/model-routing.mdc` — sisyphus row + rationale rewritten
+- `docs/AGENTS.md` — sisyphus moved to main Muse Spark table, guard section removed, duplicate trimmed
+- `docs/VERSIONS.md` — orchestrator guard → all muse-spark, dates → 2026-08-28
+
+---
+
 ## 2026-08-27 — v1.8 (Muse Spark Primary: Intelligence 57 for All Agents)
 
 ### Model Routing

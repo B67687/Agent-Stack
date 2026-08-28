@@ -2,14 +2,15 @@
 
 Agents are grouped by access tier and call volume. The Go-tier subscription provides access to `opencode-go/*` models with varying request limits. The Zen models (`opencode/*-free`) are free but rate-limited.
 
-## Model Routing (muse-spark-primary 2026-08-27)
+## Model Routing (muse-spark-primary 2026-08-28)
 
-### Muse Spark — primary for all agents (except orchestrator)
+### Muse Spark — primary for ALL agents
 
-Expanded 2026-08-27: Muse Spark (Intelligence 57, $0.01/task) is now primary for ALL agents except sisyphus. Intelligence 57 beats MiMo's 38 on every metric. Privacy: Meta trains on prompts — acceptable for code/architecture work (no PII in agent contexts).
+Expanded 2026-08-28: Muse Spark (Intelligence 57, $0.01/task) is now primary for ALL agents including sisyphus. Intelligence 57 beats MiMo's 38 on every metric. Stale tmp cache bug fixed (`agent-session kill` now clears `/cache/tmp/opencode/*/ .omo/omo.jsonc`). Privacy: Meta trains on prompts — acceptable for code/architecture work (no PII in agent contexts).
 
 | Agent                      | Model                    | Fallbacks         | Rationale                             |
 | -------------------------- | ------------------------ | ----------------- | ------------------------------------- |
+| sisyphus                   | muse-spark               | 5-entry allowlist | Main orchestrator — Intelligence 57   |
 | architect                  | muse-spark               | 5-entry allowlist | System design, meta decisions         |
 | build                      | muse-spark               | 5-entry allowlist | Default agent, edits config           |
 | worker                     | muse-spark               | 5-entry allowlist | Fresh-context implementation          |
@@ -31,14 +32,6 @@ Expanded 2026-08-27: Muse Spark (Intelligence 57, $0.01/task) is now primary for
 | **deep** (cat)             | `opencode-go/muse-spark` | 5-entry allowlist | Autonomous research — Intelligence 57 |
 | **artistry** (cat)         | `opencode-go/muse-spark` | 5-entry allowlist | Creative design — Intelligence 57     |
 | **general** (cat)          | `opencode-go/muse-spark` | 5-entry allowlist | General-purpose — Intelligence 57     |
-
-### Sisyphus — MiMo-V2.5 (orchestrator guard)
-
-Sisyphus stays on MiMo (Intelligence 38, zero-retention, no training) because it's the main orchestrator — sees full context including file paths, user intent, and config. Privacy matters here.
-
-| Agent    | Model     | Fallbacks         | Rationale                          |
-| -------- | --------- | ----------------- | ---------------------------------- |
-| sisyphus | mimo-v2.5 | 5-entry allowlist | Main orchestrator, sees everything |
 
 ### Go budget-frontier — gpt-5.6-luna
 
@@ -67,35 +60,5 @@ Last-resort fallback. All free models train on user data.
 - `disabled_providers: {openai, anthropic, google, xai}` prevents fallback to premium-only models
 - NOT routed: hy3 (too slow), kimi-k2.7-code, kimi-k3, grok-4.5, ox-alpha-free
 - fallback_models allowlist (2026-08-03; updated 2026-08-27): every agent/category carries the same 7-model allowlist (opencode-go/muse-spark-1.2-contributor, opencode-go/mimo-v2.5, opencode-go/gpt-5.6-luna, opencode-go/minimax-m3, opencode-go/glm-5.2, opencode-go/deepseek-v4-flash, opencode/mimo-v2.5-free) — suppresses OMO's hardcoded AGENT_MODEL_REQUIREMENTS chain (Test 5 is the permanent guard)
-- Agent/category models use the `model` key (single string) — validate against installed schema via `scripts/config-schema-check.mjs`
-- 11 auto-rules `.mdc` files augment agent behavior
-
-## Go budget-frontier — gpt-5.6-luna
-
-| Agent       | Model        | Fallbacks         | Rationale |
-| ----------- | ------------ | ----------------- | --------- |
-| review      | gpt-5.6-luna | 5-entry allowlist |           |
-| test-writer | gpt-5.6-luna | 5-entry allowlist |           |
-
-## Go visual — minimax-m3
-
-| Agent              | Model      | Fallbacks         | Rationale |
-| ------------------ | ---------- | ----------------- | --------- |
-| visual-engineering | minimax-m3 | 5-entry allowlist |           |
-
-## Zen Free Tier
-
-Simple, high-volume agents that don't need reasoning models.
-
-| Model                     | Agents          | Rationale                                            |
-| ------------------------- | --------------- | ---------------------------------------------------- |
-| `opencode/mimo-v2.5-free` | sisyphus-junior | General-purpose free tier, good quality at zero cost |
-
-## Notes
-
-- Model concurrency limits (2026-08-02; updated 2026-08-26): mimo-v2.5=10, muse-spark=15, gpt-5.6-luna=2, minimax-m3=2, glm-5.2=2, mimo-v2.5-free=10, qwen3.7-max=0 (budget-blocked)
-- `disabled_providers: {openai, anthropic, google, xai}` prevents fallback to premium-only models
-- NOT routed (2026-08-02; updated 2026-08-26): hy3 (too slow — dethroned), kimi-k2.7-code, kimi-k3, grok-4.5, ox-alpha-free
-- fallback_models allowlist (2026-08-03; updated 2026-08-26): every agent/category carries the same 6-model allowlist (opencode-go/mimo-v2.5, opencode-go/muse-spark-1.2-contributor, opencode-go/gpt-5.6-luna, opencode-go/minimax-m3, opencode-go/glm-5.2, opencode/mimo-v2.5-free) — suppresses OMO's hardcoded AGENT_MODEL_REQUIREMENTS chain (was claude-opus-5 on transient errors despite disabled_providers; Test 5 is the permanent guard)
 - Agent/category models use the `model` key (single string) — validate against installed schema via `scripts/config-schema-check.mjs`
 - 11 auto-rules `.mdc` files augment agent behavior
