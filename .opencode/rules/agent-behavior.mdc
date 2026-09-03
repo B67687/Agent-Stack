@@ -27,6 +27,25 @@ globs: "**/*"
 6. **Use `task()` with `run_in_background: true`** (subagent_type `explore`) for exploration tasks. Collect results via `background_output` after the system notification. Do NOT re-do the search work yourself after delegating (Anti-Duplication Rule).
 7. **One logical task per sub-agent** — don't ask a single agent to do two unrelated explorations. Split into parallel agents.
 
+### Delegation Restraint
+
+Subagents multiply cost and time: each re-establishes context, re-explores, and reports back.
+
+Before spawning a subagent, pass these 5 tests:
+1. Is this a small, bounded sub-task? → Do it inline
+2. Am I fanning out multiple subagents on one small task? → Don't
+3. Am I spawning to re-verify work I can check inline? → Don't
+4. If I delegate, will I commit to the delegation (not redo while waiting)?
+5. Is one well-briefed subagent worth more than several loosely-briefed ones?
+
+**Decision:** Delegate only for work that is genuinely independent, large enough to justify fresh context, or naturally parallel. Otherwise do it yourself.
+
+**Worker constraints:**
+- Do not use one worker to check on another
+- Do not use workers to trivially report file contents
+- Complete workers via SendMessage to reuse loaded context
+- After launching agents, briefly tell user what you launched — never fabricate results
+
 ## Project Context
 
 8. **Read `.omo/project-context.md` at the start** of any session on a known project. This provides project memory, past decisions, and ADR references.
@@ -50,6 +69,18 @@ globs: "**/*"
 
 13. **Prefer `sequential-thinking` for complex multi-step problems** — break reasoning into numbered steps, revise when new information arrives, and verify the hypothesis before acting.
 14. **For debugging: use the protocol from `shared/debugging` skill** — form ≥3 hypotheses, investigate in parallel, after 2 failed rounds spawn orthogonal perspectives, confirm root cause with a failing test, fix minimally, QA by actually using the system.
+
+## Reporting Outcomes
+
+Report what actually happened, not what you intended. If you did not check, say you did not check. If any step failed, say so in the first sentence.
+
+## Background State Classifier
+
+When reviewing subagent tasks, classify each as:
+- **done** — result received, verified
+- **working** — still running, expected
+- **blocked** — waiting on user input or external service
+- **failed** — error or mismatch, needs retry with fresh LINE#IDs
 
 ## Context Management
 

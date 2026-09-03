@@ -1,0 +1,16 @@
+---
+description: Auto-team threshold - middle ground Ultimate without always-on Team Mode
+---
+
+# Auto-Team Threshold (Middle Ground)
+
+`team_mode.enabled` stays `false` globally to save Go pool. `sisyphus.prompt_append` threshold gates parallel swarm automatically:
+
+- **AUTO-parallel swarm** (task/run_in_background concurrent) ONLY if 2+ files OR 3+ steps OR keywords: implement / refactor / architecture / bug hunt / feature
+- **Single agent** for: read / typo / explain / how does / look up / single-file tweak -> no swarm, 1x cost
+
+This gives ~70% of Ultimate benefit for ~1.3x average cost vs 5x always-on. Caps: `modelConcurrency muse-spark:15` + `maxToolCalls:250` (down from 1000) prevents runaway on Waybill batches. 80 choked HIPAA 008060 corpus, 250 is middle ground (tweak to 200 or 300 if Waybill batches hit limit).
+
+When in doubt: prompt says "When in doubt, parallel" but threshold ensures simple tasks don't burn 5x.
+
+Fallback chain remains `muse-spark -> mimo-v2.5 -> gpt-5.6-luna -> mimo-v2.5-free` so transient Muse 400/429 falls back without pool kill.

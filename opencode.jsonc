@@ -3,7 +3,7 @@
   "permission": {
     "*": "allow",
     "external_directory": "ask",
-    "doom_loop": "ask"
+    "doom_loop": "ask",
   },
   "agent": {
     "architect": {
@@ -29,13 +29,13 @@
       "permission": {
         "sequential-thinking_*": "allow",
       },
-      "prompt": "## Build Agent\n\nALWAYS load the dev-defaults skill FIRST: skill(name='dev-defaults'). Strategic thinking patterns (RESEARCH -> CHALLENGE -> EXTRAPOLATE -> DECIDE) on EVERY interaction.\n\nDetailed rules are in .opencode/rules/build-workflow.mdc and build-meta-learning.mdc.\n\nKey points:\n- Load dev-defaults skill before anything else\n- searxng_web_search FIRST, websearch_tavily_search 2nd, webfetch fallback\n- Delegate to explore/scout/plan/worker/review (max depth 3)\n- gh CLI over GitHub MCP for GitHub operations\n- Run lsp_diagnostics + build check before completing tasks\n- Load domain skills via skill() for specific tasks\n- For web research / factual-lookup: load authoritative-search: skill(name='authoritative-search') — applies consensus/authority discipline (cross-verify load-bearing claims via extractor sidecar at 127.0.0.1:8081, emit provenance).",
+      "prompt": "## Build Agent\n\nALWAYS load the dev-defaults skill FIRST: skill(name='dev-defaults'). Strategic thinking patterns (RESEARCH -> CHALLENGE -> EXTRAPOLATE -> DECIDE) on EVERY interaction.\n\nDetailed rules are in .opencode/rules/build-workflow.mdc and build-meta-learning.mdc.\n\nKey points:\n- Load dev-defaults skill before anything else\n- searxng_web_search FIRST, websearch_tavily_search 2nd, webfetch fallback\n- Delegate to explore/scout/plan/worker/review (max depth 3)\n- gh CLI over GitHub MCP for GitHub operations\n- Run lsp_diagnostics + build check before completing tasks\n- Load domain skills via skill() for specific tasks — NEVER use read() to load skills, always use skill() tool\n- For web research / factual-lookup: load authoritative-search via skill(name='authoritative-search') — NEVER use read(), always skill() — applies consensus/authority discipline (cross-verify load-bearing claims via extractor sidecar at 127.0.0.1:8081, emit provenance).",
       "steps": 40,
     },
     "general": {
       "description": "General-purpose agent for researching complex questions and executing multi-step tasks",
       "mode": "subagent",
-      "prompt": "\n\n## Context-Mode Tooling (Memory & Research)\nThis agent has access to context-mode tools for persistent memory and research:\n- ctx_search: Search indexed knowledge (codebase patterns, prior decisions)\n- ctx_fetch_and_index: Fetch web content and store in searchable index\n- ctx_index: Store structured knowledge for future retrieval\n- ctx_batch_execute: Run multiple shell queries efficiently\n\nUse ctx_search before asking repetitive questions. Use ctx_fetch_and_index for web research that benefits future sessions. Prefer ctx_batch_execute over multiple sequential shell commands.\n\nFor web research / factual-lookup: load authoritative-search: skill(name='authoritative-search') — applies consensus/authority discipline (cross-verify load-bearing claims via extractor sidecar at 127.0.0.1:8081, emit provenance).",
+      "prompt": "\n\n## Context-Mode Tooling (Memory & Research)\nThis agent has access to context-mode tools for persistent memory and research:\n- ctx_search: Search indexed knowledge (codebase patterns, prior decisions)\n- ctx_fetch_and_index: Fetch web content and store in searchable index\n- ctx_index: Store structured knowledge for future retrieval\n- ctx_batch_execute: Run multiple shell queries efficiently\n\nUse ctx_search before asking repetitive questions. Use ctx_fetch_and_index for web research that benefits future sessions. Prefer ctx_batch_execute over multiple sequential shell commands.\n\nFor web research / factual-lookup: load authoritative-search via skill(name='authoritative-search') — NEVER use read() to load skills, always use skill() tool — applies consensus/authority discipline (cross-verify load-bearing claims via extractor sidecar at 127.0.0.1:8081, emit provenance).",
       "steps": 15,
     },
     "plan": {
@@ -62,7 +62,7 @@
       "permission": {
         "edit": "deny",
       },
-      "prompt": "## MANDATORY - Search Tool Order\nYou MUST use `searxng_web_search` FIRST for all web searches (free, self-hosted, no rate limits).\nIf SearXNG returns empty or errors, fall back to `websearch_tavily_search` (Tavily).\nIf Tavily is unavailable, use `webfetch` for known URLs.\nUse `webfetch` for known URLs (free).\n\nYou are Scout. Research external dependencies, clone repos into OpenCode's managed cache, inspect library source, and cross-reference local code against upstream implementations. Do not modify the workspace.\n\nFor web research / factual-lookup: load authoritative-search: skill(name='authoritative-search') — applies consensus/authority discipline (cross-verify load-bearing claims via extractor sidecar at 127.0.0.1:8081, emit provenance).",
+      "prompt": "## MANDATORY - Search Tool Order\nYou MUST use `searxng_web_search` FIRST for all web searches (free, self-hosted, no rate limits).\nIf SearXNG returns empty or errors, fall back to `websearch_tavily_search` (Tavily).\nIf Tavily is unavailable, use `webfetch` for known URLs.\nUse `webfetch` for known URLs (free).\n\nYou are Scout. Research external dependencies, clone repos into OpenCode's managed cache, inspect library source, and cross-reference local code against upstream implementations. Do not modify the workspace.\n\nFor web research / factual-lookup: load authoritative-search via skill(name='authoritative-search') — NEVER use read() to load skills, always use skill() tool — applies consensus/authority discipline (cross-verify load-bearing claims via extractor sidecar at 127.0.0.1:8081, emit provenance).",
       "steps": 10,
     },
     "test-writer": {
@@ -94,6 +94,18 @@
       "steps": 20,
       "temperature": 0.2,
     },
+    "explore": {
+      "description": "Contextual grep for codebases — when prompt starts with 'research:' ALWAYS load authoritative-search first: skill(name='authoritative-search') — NEVER use read() for skills.",
+      "mode": "subagent",
+      "prompt": "For ANY web research / factual-lookup: load authoritative-search FIRST via skill(name='authoritative-search') — NEVER use read() to load skills, always use skill() tool — do this BEFORE any grep/glob/searxng. Applies consensus/authority discipline (cross-verify via extractor 127.0.0.1:8081, emit provenance).",
+      "steps": 15,
+    },
+    "sisyphus": {
+      "description": "Sisyphus orchestrator — meta-research exhaustive default (fans out all directions) + authoritative-search discipline. For ANY research: load meta-research: skill(name='meta-research') which fans out via authoritative-search.",
+      "mode": "primary",
+      "prompt": "For ANY research / understanding task: load meta-research FIRST via skill(name='meta-research') — exhaustive fan-out across all intents/source types/languages (assumes user doesn't know what they want). It wraps authoritative-search per direction (SearXNG+14 connectors+extractor 127.0.0.1:8081, trust 75/25+RRF, CONFIRMED/LIKELY/CONFLICTED tags, provenance). For simple factual-lookup, authoritative-search alone is fine: skill(name='authoritative-search'). NEVER use read() for skills. Sisyphus delegates to build/general/scout/worker/explore (all wired).",
+      "steps": 50
+    },
     "worker": {
       "description": "Fresh-context implementation or verification lane when the main thread is saturated, context is degraded, or the task needs a clean slice.",
       "mode": "subagent",
@@ -105,7 +117,7 @@
           "scout": "allow",
         },
       },
-      "prompt": "## MANDATORY - Search Tool Order\nYou MUST use `searxng_web_search` FIRST for all web searches (free, self-hosted, no rate limits).\nIf SearXNG returns empty or errors, fall back to `websearch_tavily_search` (Tavily).\nIf Tavily is unavailable, use `webfetch` for known URLs.\nUse `webfetch` for known URLs (free).\n\nOn start, log to audit trail: bash ~/.local/share/opencode/scripts/hooks/log-agent.sh 'worker' '${description:-implementation}' 2>/dev/null || true.\nOn completion, log stop: bash ~/.local/share/opencode/scripts/hooks/log-agent-stop.sh 'worker' 'completed' 2>/dev/null || true.\nYou have at most 30 tool calls to complete this task. If stuck, write partial output and report BENCH_SUCCESS: false. The parent orchestrator will handle fallback.\n\nYou may delegate read-only research to explore or scout subagents using the task tool. Do NOT delegate implementation to other workers. You are a leaf implementation agent\n\n## Verification Gate (MANDATORY Before Marking Done)\nAfter every edit cycle, BEFORE marking a todo complete:\n1. Run `lsp_diagnostics` on ALL changed files - fix any new errors\n2. If the project has a build/check command (`cargo check`, `npm run check`, `tsc --noEmit`), run it\n3. Verify diagnostics are clean (zero new errors vs pre-change state)\n4. Only after passing verification, mark the todo as completed\n5. If build/check fails, fix before moving on\n\nPre-existing errors (errors present before your changes) are NOT your responsibility.\n\nFor web research / factual-lookup: load authoritative-search: skill(name='authoritative-search') — applies consensus/authority discipline (cross-verify load-bearing claims via extractor sidecar at 127.0.0.1:8081, emit provenance).",
+      "prompt": "## MANDATORY - Search Tool Order\nYou MUST use `searxng_web_search` FIRST for all web searches (free, self-hosted, no rate limits).\nIf SearXNG returns empty or errors, fall back to `websearch_tavily_search` (Tavily).\nIf Tavily is unavailable, use `webfetch` for known URLs.\nUse `webfetch` for known URLs (free).\n\nOn start, log to audit trail: bash ~/.local/share/opencode/scripts/hooks/log-agent.sh 'worker' '${description:-implementation}' 2>/dev/null || true.\nOn completion, log stop: bash ~/.local/share/opencode/scripts/hooks/log-agent-stop.sh 'worker' 'completed' 2>/dev/null || true.\nYou have at most 30 tool calls to complete this task. If stuck, write partial output and report BENCH_SUCCESS: false. The parent orchestrator will handle fallback.\n\nYou may delegate read-only research to explore or scout subagents using the task tool. Do NOT delegate implementation to other workers. You are a leaf implementation agent\n\n## Verification Gate (MANDATORY Before Marking Done)\nAfter every edit cycle, BEFORE marking a todo complete:\n1. Run `lsp_diagnostics` on ALL changed files - fix any new errors\n2. If the project has a build/check command (`cargo check`, `npm run check`, `tsc --noEmit`), run it\n3. Verify diagnostics are clean (zero new errors vs pre-change state)\n4. Only after passing verification, mark the todo as completed\n5. If build/check fails, fix before moving on\n\nPre-existing errors (errors present before your changes) are NOT your responsibility.\n\nFor web research / factual-lookup: load authoritative-search via skill(name='authoritative-search') — NEVER use read() to load skills, always use skill() tool — applies consensus/authority discipline (cross-verify load-bearing claims via extractor sidecar at 127.0.0.1:8081, emit provenance).",
       "steps": 30,
     },
   },
@@ -121,7 +133,7 @@
       "agent": "build",
       "description": "Run the Development Protocol on the current project — reads dynamically from the protocol repo",
       "subtask": false,
-      "template": "Load the dev-protocol skill: skill(name='dev-protocol'). Then execute the Development Protocol on the current project. Read the protocol from ~/projects/dev/Development-Protocol/ — determine the current pipeline, and execute each step in order, saving artifacts to .omo/plans/. Start from step 1 unless a specific step is mentioned in the user's message after the command."
+      "template": "Load the dev-protocol skill: skill(name='dev-protocol'). Then execute the Development Protocol on the current project. Read the protocol from ~/projects/dev/Development-Protocol/ — determine the current pipeline, and execute each step in order, saving artifacts to .omo/plans/. Start from step 1 unless a specific step is mentioned in the user's message after the command.",
     },
     "review-staged": {
       "agent": "review",
@@ -206,12 +218,12 @@
       "initialization": {
         "basedpyright": {
           "analysis": {
-            "typeCheckingMode": "basic"
+            "typeCheckingMode": "basic",
           },
         },
         "python": {
           "analysis": {
-            "typeCheckingMode": "basic"
+            "typeCheckingMode": "basic",
           },
         },
       },
@@ -252,12 +264,7 @@
   },
   "mcp": {
     "playwright": {
-      "command": [
-        "npx",
-        "-y",
-        "@playwright/mcp@0.0.78",
-        "--headless",
-      ],
+      "command": ["npx", "-y", "@playwright/mcp@0.0.78", "--headless"],
       "enabled": true,
       "type": "local",
     },
@@ -382,7 +389,7 @@
       "~/.local/share/opencode/*": "allow",
       "~/projects/**": "allow",
       "~/.config/act/**": "allow",
-      "~/.cache/tmp/opencode/**": "allow"
+      "~/.cache/tmp/opencode/**": "allow",
     },
     "glob": "allow",
     "grep": "allow",
