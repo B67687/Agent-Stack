@@ -13,13 +13,13 @@ Tracked versions for the Agent Stack config. Updated 2026-09-03.
 
 | Setting               | Value                                                                            | Updated    |
 | --------------------- | -------------------------------------------------------------------------------- | ---------- |
-| Primary model         | opencode-go/muse-spark-1.2-contributor                                           | 2026-08-28 |
+| Primary model         | opencode-go/muse-spark-1.3-contributor                                           | 2026-08-28 |
 | Orchestrator guard    | — (all agents on muse-spark since 2026-08-28, cache bug fixed)                   | 2026-08-28 |
-| Intelligence Index    | 57 (Muse), 38 (MiMo fallback)                                                    | —          |
-| Cost per task         | $0.01 (Muse), $0.06 (MiMo fallback)                                              | —          |
-| Primary fallback      | muse-spark → mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free                           | 2026-08-28 |
-| Orchestrator fallback | muse-spark → mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free (same as primary)         | 2026-08-28 |
-| modelConcurrency      | muse-spark=15, mimo-v2.5=10, flash=2, luna=2, minimax=2, glm-5.2=2, mimo-free=10 | 2026-08-28 |
+| Intelligence Index    | 61 xhigh / 62 max (1.3), 57 (1.2 fallback), 38 (MiMo)                                                    | —          |
+| Cost per task         | ~$0.55 (1.3), $0.40 (1.2 fallback), $0.06 (MiMo)                                              | —          |
+| Primary fallback      | 1.3 → 1.2 → mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free                           | 2026-08-28 |
+| Orchestrator fallback | 1.3 → 1.2 → mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free (same as primary)         | 2026-08-28 |
+| modelConcurrency      | muse-spark-1.3=15, muse-spark-1.2=10, mimo-v2.5=10, flash=2, luna=2, minimax=2, glm-5.2=2, mimo-free=10 | 2026-08-28 |
 
 ## Key Dates
 

@@ -1,3 +1,30 @@
+## 2026-09-03 — v2.0 (Muse Spark 1.3 Primary: Intelligence 61)
+
+### Model Routing
+
+- **1.3 primary for all 21 agents** — was 1.2, now 1.3 (AA 61 xhigh / 62 max, +7 vs 1.2, +56% speed 182 vs 116 t/s, same $0.10/$0.20 pricing)
+- **1.2 demoted to first fallback** — full chain: 1.3 → 1.2 → mimo-v2.5 → gpt-5.6-luna → mimo-v2.5-free → minimax-m3 (6-entry)
+- **modelConcurrency**: muse-spark-1.3=15, muse-spark-1.2=10, mimo-v2.5=10 (unchanged others)
+- **maxToolCalls 250** — was 1000 (middle-ground cap, Waybill HIPAA batch ~180 fits with 20% headroom)
+- **providerConcurrency opencode-go 15** — was 10 (matches background_task 15)
+
+### Why
+
+- 1.3 is cheapest powerful (AA #3, ~$0.55/task despite 3x verbosity vs 1.2 $0.40) — strict upgrade at same rate limit 45,300/5h $60 pool
+- 1.2 drops intermittently (Meta transient, falls back to mimo) — 1.3 expected same, so 1.2 as first fallback absorbs 1.3 outages before hitting mimo
+- Aggressive probe planned post-shift: parallel subagents to measure 1.3 stability vs 1.2
+
+### Files Changed
+
+- `~/.omo/omo.jsonc` — 21 primaries 1.2→1.3, 21 fallbacks prepended 1.2, concurrency 1.3:15 + 1.2:10
+- `.opencode/rules/model-routing.mdc` — header/primaries/fallbacks/rationale/NOT-list updated
+- `docs/AGENTS.md` — header/intro/6-entry/concurrency/8-model allowlist
+- `docs/CONFIG_MAP.md` — default/concurrency/maxToolCalls/provider/8-entry/summary
+- `docs/VERSIONS.md` — primary/Intel 61/cost/fallback/concurrency
+- `scripts/regression-test.sh` — allowed set + docs-sync gate (1.3:15, 1.2:10)
+
+---
+
 ## 2026-08-28 — v1.9 (All Agents on Muse Spark + Cache Fix)
 
 ### Model Routing

@@ -21,7 +21,7 @@ Exhaustive reference for every non-default setting across `opencode.jsonc` and `
 | Setting                             | Value                                    | Rationale                                                                           |
 | ----------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------- |
 | `provider.deepseek.options.baseURL` | `https://api.deepseek.com/v1`            | Direct DeepSeek API — lower latency than routing through OpenAI-compatible proxy    |
-| `model` (default)                   | `opencode-go/muse-spark-1.2-contributor` | Primary model — muse-spark for all agents except sisyphus orchestrator (2026-08-27) |
+| `model` (default)                   | `opencode-go/muse-spark-1.3-contributor` | Primary model — muse-spark 1.3 for all agents (2026-09-03, 1.2 first fallback) |
 | `subagent_depth`                    | **3**                                    | Preemptive — needed for OpenCode v1.18.x where subagent nesting defaults to off     |
 | `disabled_providers`                | `openai, anthropic, google, xai`         | Prevents accidental premium API usage                                               |
 
@@ -30,10 +30,10 @@ Exhaustive reference for every non-default setting across `opencode.jsonc` and `
 | Setting              | Current                                                                                                   | Default | Why                                                                                              |
 | -------------------- | --------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------ |
 | `concurrency`        | **15**                                                                                                    | 5       | More parallel subagents for multi-agent orchestration                                            |
-| `maxToolCalls`       | **1000**                                                                                                  | ~100    | Prevents subagent loops from being killed mid-work                                               |
+| `maxToolCalls`       | **250**                                                                                                  | ~100    | Prevents subagent loops from being killed mid-work                                               |
 | `staleTimeoutMs`     | **300000** (5 min)                                                                                        | 300000  | Reverted from 900000 — fast failure detection                                                    |
-| Provider concurrency | deepseek:3, opencode-go:10                                                                                | —       | Provider-specific caps prevent rate limiting                                                     |
-| `Model concurrency`  | `muse-spark-1.2-contributor:15, mimo-v2.5:10, gpt-5.6-luna:2, minimax-m3:2, glm-5.2:2, mimo-v2.5-free:10` | —       | Per-model caps (updated 2026-08-27: muse-spark=15 primary, mimo-v2.5=10 orchestrator guard only) |
+| Provider concurrency | deepseek:3, opencode-go:15                                                                                | —       | Provider-specific caps prevent rate limiting                                                     |
+| `Model concurrency`  | `muse-spark-1.3-contributor:15, muse-spark-1.2-contributor:10, mimo-v2.5:10, gpt-5.6-luna:2, minimax-m3:2, glm-5.2:2, mimo-v2.5-free:10` | —       | Per-model caps (updated 2026-09-03: muse-spark-1.3=15 primary, 1.2=10 first fallback) |
 
 ## Performance
 
@@ -108,7 +108,7 @@ Exhaustive reference for every non-default setting across `opencode.jsonc` and `
 | `hashline_edit`                       | `true`                                                      | Use Line#ID edit format for precise, safe modifications                                                                                                                                                         |
 | `comment_checker`                     | `{}`                                                        | Enable comment-checker validation                                                                                                                                                                               |
 | `runtime_fallback`                    | freeze detection, retry 400/429/500/503/529, max 3 attempts | Comprehensive error recovery (500 added 2026-08-03 — AI_APICallError engages fallback instead of silent retry)                                                                                                  |
-|                                       | `fallback_models` (per agent/category)                      | 7-entry allowlist: opencode-go/mimo-v2.5, opencode-go/gpt-5.6-luna, opencode-go/minimax-m3, opencode-go/glm-5.2, opencode/mimo-v2.5-free, opencode-go/deepseek-v4-flash, opencode-go/muse-spark-1.2-contributor | Added 2026-08-03; updated 2026-08-26 — suppresses OMO hardcoded AGENT_MODEL_REQUIREMENTS fallback chain (was claude-opus-5/anthropic on transient errors, 'insufficient balance' mystery; Test 5 enforces) |
+|                                       | `fallback_models` (per agent/category)                      | 8-entry allowlist: opencode-go/muse-spark-1.3-contributor, opencode-go/muse-spark-1.2-contributor, opencode-go/mimo-v2.5, opencode-go/gpt-5.6-luna, opencode-go/minimax-m3, opencode-go/glm-5.2, opencode/mimo-v2.5-free, opencode-go/deepseek-v4-flash | Added 2026-08-03; updated 2026-09-03 — suppresses OMO hardcoded AGENT_MODEL_REQUIREMENTS fallback chain (was claude-opus-5/anthropic on transient errors, 'insufficient balance' mystery; Test 5 enforces) |
 
 ## Scripts
 
@@ -162,7 +162,7 @@ Exhaustive reference for every non-default setting across `opencode.jsonc` and `
 
 Full routing table lives in the canonical source: [.opencode/rules/model-routing.mdc](../.opencode/rules/model-routing.mdc) — per-agent + per-category model assignments, fallbacks, and the NOT-routed list. This section intentionally does not duplicate it (single source of truth).
 
-Summary (updated 2026-08-28): ALL agents on `opencode-go/muse-spark-1.2-contributor` (Intelligence 57, $0.01/task) — including sisyphus (moved 2026-08-28 after cache fix, Intelligence 57 beats 38 on every metric). `opencode-go/mimo-v2.5` now first fallback only (zero-retention). Budget-frontier `opencode-go/gpt-5.6-luna` on test-writer/review; `opencode-go/minimax-m3` on visual-engineering; Zen free as last-resort (mimo-v2.5-free). `agent-session kill` + `restart-opencode.sh` now clear stale `/cache/tmp/opencode/*/ .omo/omo.jsonc`.
+Summary (updated 2026-09-03): ALL agents on `opencode-go/muse-spark-1.3-contributor` (Intelligence 61, ~$0.55/task) — including sisyphus (moved 2026-08-28 after cache fix, Intelligence 57 beats 38 on every metric). `opencode-go/muse-spark-1.2-contributor` now first fallback, `opencode-go/mimo-v2.5` second (zero-retention). Budget-frontier `opencode-go/gpt-5.6-luna` on test-writer/review; `opencode-go/minimax-m3` on visual-engineering; Zen free as last-resort (mimo-v2.5-free). `agent-session kill` + `restart-opencode.sh` now clear stale `/cache/tmp/opencode/*/ .omo/omo.jsonc`.
 
 ## Reasoning Effort & Thinking Budget
 

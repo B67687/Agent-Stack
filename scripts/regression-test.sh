@@ -94,7 +94,7 @@ FB_CHECK=$(python3 -c "
 import json5
 omo = json5.loads(open('$HOME/.omo/omo.jsonc').read())
 omo = omo['[opencode]']
-allowed = {'opencode-go/deepseek-v4-flash', 'opencode-go/gpt-5.6-luna', 'opencode-go/minimax-m3', 'opencode-go/mimo-v2.5', 'opencode-go/glm-5.2', 'opencode-go/muse-spark-1.2-contributor', 'opencode/mimo-v2.5-free'}
+allowed = {'opencode-go/deepseek-v4-flash', 'opencode-go/gpt-5.6-luna', 'opencode-go/minimax-m3', 'opencode-go/mimo-v2.5', 'opencode-go/glm-5.2', 'opencode-go/muse-spark-1.2-contributor', 'opencode-go/muse-spark-1.3-contributor', 'opencode/mimo-v2.5-free'}
 forbidden_providers = ('anthropic', 'openai', 'google', 'xai')
 bad = []
 for scope_name in ['agents', 'categories']:
@@ -655,7 +655,8 @@ agents = slurp(h + '/.config/opencode/docs/AGENTS.md')
 wf = slurp(h + '/.config/opencode/docs/WORKFLOW.md')
 issues = []
 # modelConcurrency truth (live omo.jsonc)
-if 'muse-spark-1.2-contributor:15' not in cmap: issues.append('CONFIG_MAP modelConcurrency muse-spark-1.2-contributor:15')
+if 'muse-spark-1.3-contributor:15' not in cmap: issues.append('CONFIG_MAP modelConcurrency muse-spark-1.3-contributor:15')
+if 'muse-spark-1.2-contributor:10' not in cmap: issues.append('CONFIG_MAP modelConcurrency muse-spark-1.2-contributor:15')
 if 'mimo-v2.5:10' not in cmap: issues.append('CONFIG_MAP modelConcurrency mimo-v2.5:10')
 if 'mimo-v2.5-free:10' not in cmap: issues.append('CONFIG_MAP modelConcurrency mimo-free:10')
 # disabled_hooks 4-entry truth
