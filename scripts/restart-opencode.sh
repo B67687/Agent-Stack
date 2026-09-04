@@ -54,10 +54,14 @@ else
     sleep 1
   fi
   echo "  ✅ stopped"
-  # Clear stale OMO tmp cache (otherwise restart reuses old omo.jsonc)
-  find "$HOME/.cache/tmp" -name "omo.jsonc" -delete 2>/dev/null || true
-  echo "  ✅ OMO cache cleared"
 fi
+
+# Clear stale caches unconditionally (fresh-start path skips the kill block above,
+# but stale cache would still poison the new process — provider-models.json
+# 2026-08-18 stale caused task-spawns to skip muse-spark 2026-09-03)
+find "$HOME/.cache/tmp" -name "omo.jsonc" -delete 2>/dev/null || true
+rm -f "$HOME/.cache/oh-my-opencode/provider-models.json" 2>/dev/null || true
+echo "  ✅ OMO + provider-model caches cleared"
 
 # ── 3. Relaunch via agent-session (isolated cgroup) ──
 echo "==> [3/4] Relaunching opencode in agent-session '$SESSION'"
